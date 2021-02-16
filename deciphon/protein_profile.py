@@ -28,7 +28,7 @@ from .hmmer_model import HMMERModel
 from .profile import Profile, ProfileID
 
 
-__all__ = ["ProteinProfile", "create_profile", "create_profile2"]
+__all__ = ["ProteinProfile", "create_profile"]
 
 
 class ProteinProfile(Profile):
@@ -143,46 +143,46 @@ class ProteinProfile(Profile):
     #     return search_results
 
 
+# def create_profile(
+#     hmm: HMMERModel,
+#     base_abc: Union[RNAAlphabet, DNAAlphabet],
+#     window_length: int = 0,
+#     epsilon: float = 0.1,
+# ) -> ProteinProfile:
+
+#     amino_abc = hmm.alphabet
+#     assert isinstance(amino_abc, AminoAlphabet)
+
+#     lprobs = lprob_normalize(hmm.insert_lprobs(0))
+#     null_aminot = AminoLprob.create(amino_abc, lprobs)
+#     factory = ProteinStateFactory(CodonTable(base_abc, amino_abc), epsilon)
+
+#     nodes: List[Node] = []
+#     for m in range(1, hmm.model_length + 1):
+#         lprobs = lprob_normalize(hmm.match_lprobs(m))
+#         M = factory.create(f"M{m}".encode(), AminoLprob.create(amino_abc, lprobs))
+
+#         lprobs = lprob_normalize(hmm.insert_lprobs(m))
+#         I = factory.create(f"I{m}".encode(), AminoLprob.create(amino_abc, lprobs))
+
+#         D = MuteState.create(f"D{m}".encode(), base_abc)
+
+#         nodes.append(Node(M, I, D))
+
+#     trans: List[Transitions] = []
+#     for t in hmm.transitions:
+#         t.normalize()
+#         trans.append(t)
+
+#     profid = ProfileID(hmm.model_id.name, hmm.model_id.acc)
+#     prof = ProteinProfile.create(
+#         profid, factory, null_aminot, nodes, trans, EntryDistr.UNIFORM
+#     )
+#     prof.window_length = window_length
+#     return prof
+
+
 def create_profile(
-    hmm: HMMERModel,
-    base_abc: Union[RNAAlphabet, DNAAlphabet],
-    window_length: int = 0,
-    epsilon: float = 0.1,
-) -> ProteinProfile:
-
-    amino_abc = hmm.alphabet
-    assert isinstance(amino_abc, AminoAlphabet)
-
-    lprobs = lprob_normalize(hmm.insert_lprobs(0))
-    null_aminot = AminoLprob.create(amino_abc, lprobs)
-    factory = ProteinStateFactory(CodonTable(base_abc, amino_abc), epsilon)
-
-    nodes: List[Node] = []
-    for m in range(1, hmm.model_length + 1):
-        lprobs = lprob_normalize(hmm.match_lprobs(m))
-        M = factory.create(f"M{m}".encode(), AminoLprob.create(amino_abc, lprobs))
-
-        lprobs = lprob_normalize(hmm.insert_lprobs(m))
-        I = factory.create(f"I{m}".encode(), AminoLprob.create(amino_abc, lprobs))
-
-        D = MuteState.create(f"D{m}".encode(), base_abc)
-
-        nodes.append(Node(M, I, D))
-
-    trans: List[Transitions] = []
-    for t in hmm.transitions:
-        t.normalize()
-        trans.append(t)
-
-    profid = ProfileID(hmm.model_id.name, hmm.model_id.acc)
-    prof = ProteinProfile.create(
-        profid, factory, null_aminot, nodes, trans, EntryDistr.UNIFORM
-    )
-    prof.window_length = window_length
-    return prof
-
-
-def create_profile2(
     hmm: HMMERModel,
     base_abc: Union[RNAAlphabet, DNAAlphabet],
     window_length: int = 0,

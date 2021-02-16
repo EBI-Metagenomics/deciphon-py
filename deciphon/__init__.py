@@ -1,5 +1,8 @@
 from importlib import import_module as _import_module
 
+from .press import press
+from .example import example_filepath
+
 try:
     __version__ = getattr(_import_module("deciphon._version"), "version", "x.x.x")
 except ModuleNotFoundError:
@@ -8,4 +11,6 @@ except ModuleNotFoundError:
 
 __all__ = [
     "__version__",
+    "press",
+    "example_filepath",
 ]
