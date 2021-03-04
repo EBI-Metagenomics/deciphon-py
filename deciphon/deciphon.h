@@ -8,7 +8,7 @@ struct dcp_profile const* dcp_input_read(struct dcp_input* input);
 int                dcp_output_close(struct dcp_output* output);
 struct dcp_output* dcp_output_create(char const* filepath);
 int                dcp_output_destroy(struct dcp_output* output);
-int                dcp_output_write(struct dcp_output* output, struct nmm_profile const* prof);
+int                dcp_output_write(struct dcp_output* output, struct dcp_profile const* prof);
 
 /* Profile */
 struct imm_abc const* dcp_profile_abc(struct dcp_profile const* prof);
