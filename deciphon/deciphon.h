@@ -11,11 +11,15 @@ int                dcp_output_destroy(struct dcp_output* output);
 int                dcp_output_write(struct dcp_output* output, struct dcp_profile const* prof);
 
 /* Profile */
-struct imm_abc const* dcp_profile_abc(struct dcp_profile const* prof);
-void                  dcp_profile_destroy(struct dcp_profile const* prof, bool deep);
-struct imm_model*     dcp_profile_get_model(struct dcp_profile const* prof, uint8_t i);
-uint32_t              dcp_profile_id(struct dcp_profile const* prof);
-uint8_t               dcp_profile_nmodels(struct dcp_profile const* prof);
+struct imm_abc const*     dcp_profile_abc(struct dcp_profile const* prof);
+void                      dcp_profile_append_model(struct dcp_profile* prof, struct imm_model* model);
+struct dcp_profile*       dcp_profile_create(struct imm_abc const* abc);
+void                      dcp_profile_destroy(struct dcp_profile const* prof, bool deep);
+void                      dcp_profile_free(struct dcp_profile const* prof);
+struct imm_model*         dcp_profile_get_model(struct dcp_profile const* prof, uint8_t i);
+uint32_t                  dcp_profile_id(struct dcp_profile const* prof);
+struct nmm_profile const* dcp_profile_nmm_profile(struct dcp_profile const* prof);
+uint8_t                   dcp_profile_nmodels(struct dcp_profile const* prof);
 
 /* Result */
 imm_float                dcp_result_alt_loglik(struct dcp_result const* result);

@@ -9,7 +9,6 @@ def test_io(tmp_path: Path):
     filepath = dcp.example.get("minifam.hmm")
     filename = filepath.name
     shutil.copy(filepath, filename)
-    breakpoint()
     dcp.press(filename)
 
     # with open("consensus.fasta", "w") as file:

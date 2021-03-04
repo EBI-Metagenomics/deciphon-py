@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Type
 
-from ._dcp_profile import DCPProfile
+from .dcp_profile import DCPProfile
 
 from ._cdata import CData
 from ._ffi import ffi, lib

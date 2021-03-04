@@ -29,7 +29,7 @@ def press(hmm_filepath: Union[Path, str]):
                 model = HMMERModel(plain_model)
                 prof = create_profile(model, base_abc, 0, epsilon)
 
-                nprof = nmm.Profile.create(prof.alphabet)
+                nprof = DCPProfile.create(prof.alphabet)
 
                 hmm = prof.alt_model.hmm
                 dp = hmm.create_dp(prof.alt_model.special_node.T)
