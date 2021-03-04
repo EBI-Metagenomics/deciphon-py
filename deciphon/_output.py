@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Type
 
-from nmm import Model
+from ._dcp_profile import DCPProfile
 
 from ._cdata import CData
 from ._ffi import ffi, lib
@@ -12,18 +12,18 @@ __all__ = ["Output"]
 
 class Output:
     def __init__(self, dcp_output: CData):
-        if dcp_output == ffi.NULL:
-            raise RuntimeError("`dcp_output` is NULL.")
         self._dcp_output = dcp_output
+        if self._dcp_output == ffi.NULL:
+            raise RuntimeError("`dcp_output` is NULL.")
 
     @classmethod
-    def create(cls: Type[Output], filepath: bytes, nmodels: int) -> Output:
-        return cls(lib.dcp_output_create(filepath, nmodels))
+    def create(cls: Type[Output], filepath: bytes) -> Output:
+        return cls(lib.dcp_output_create(filepath))
 
-    def write(self, model: Model):
-        err: int = lib.dcp_output_write(self._dcp_output, model.nmm_model)
+    def write(self, prof: DCPProfile):
+        err: int = lib.dcp_output_write(self._dcp_output, prof.dcp_profile)
         if err != 0:
-            raise RuntimeError("Could not write model.")
+            raise RuntimeError("Could not write profile.")
 
     def close(self):
         err: int = lib.dcp_output_close(self._dcp_output)
@@ -32,7 +32,6 @@ class Output:
 
     def __del__(self):
         if self._dcp_output != ffi.NULL:
-            # self.close()
             lib.dcp_output_destroy(self._dcp_output)
 
     def __enter__(self):
@@ -42,4 +41,4 @@ class Output:
         del exception_type
         del exception_value
         del traceback
-        # self.close()
+        self.close()

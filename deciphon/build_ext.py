@@ -24,6 +24,7 @@ if "DECIPHON_EXTRA_LINK_ARGS" in os.environ:
 ffibuilder.set_source(
     "deciphon._ffi",
     r"""
+    #include "nmm/nmm.h"
     #include "deciphon/deciphon.h"
     """,
     libraries=libs,

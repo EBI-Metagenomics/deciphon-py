@@ -1,9 +1,11 @@
 from pathlib import Path
 
 from hmmer_reader import num_models, open_hmmer
-from imm import HMMBlock
-from nmm import DNAAlphabet, Model
+from nmm import DNAAlphabet
+import imm
+import nmm
 from ._output import Output
+from ._dcp_profile import DCPProfile
 from tqdm import tqdm
 
 from .hmmer_model import HMMERModel
@@ -25,15 +27,17 @@ def press(hmm_filepath: Path):
                 model = HMMERModel(plain_model)
                 prof = create_profile(model, base_abc, 0, epsilon)
 
+                nprof = nmm.Profile.create(prof.alphabet)
+
                 hmm = prof.alt_model.hmm
                 dp = hmm.create_dp(prof.alt_model.special_node.T)
-                model = Model.create(hmm.alphabet)
-                model.append_hmm_block(HMMBlock.create(hmm, dp))
+                nprof.append_model(imm.Model.create(hmm, dp))
 
                 hmm = prof.null_model.hmm
                 dp = hmm.create_dp(prof.null_model.state)
-                model.append_hmm_block(HMMBlock.create(hmm, dp))
-                output.write(model)
+                nprof.append_model(imm.Model.create(hmm, dp))
+
+                output.write(nprof)
                 # nfile.write(Model.create(hmm, dp))
                 # name = model.model_id.name
                 # acc = model.model_id.acc
