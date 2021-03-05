@@ -10,6 +10,8 @@ def test_press(tmp_path: Path):
     filename = filepath.name
     shutil.copy(filepath, filename)
     dcp.press(filename)
+    breakpoint()
+    pass
 
     # with open("consensus.fasta", "w") as file:
     #     file.write(_consensus)

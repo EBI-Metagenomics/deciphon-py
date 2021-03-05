@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Type
+from typing import Type, Iterator
 
 from ._cdata import CData
 from .dcp_profile import DCPProfile
@@ -11,9 +11,9 @@ __all__ = ["Input"]
 
 class Input:
     def __init__(self, dcp_input: CData):
-        if dcp_input == ffi.NULL:
-            raise RuntimeError("`dcp_input` is NULL.")
         self._dcp_input = dcp_input
+        if self._dcp_input == ffi.NULL:
+            raise RuntimeError("`dcp_input` is NULL.")
 
     @classmethod
     def create(cls: Type[Input], filepath: bytes) -> Input:
@@ -30,17 +30,17 @@ class Input:
 
         return wrap.dcp_profile(dcp_profile)
 
-    def create_partition(self, part: int, nparts: int) -> Partition:
-        dcp_partition = lib.dcp_input_create_partition(self._dcp_input, part, nparts)
-        if dcp_partition == ffi.NULL:
-            raise RuntimeError("Could not create partition.")
-        return Partition(dcp_partition)
-
     def close(self):
-        pass
-        # err: int = lib.nmm_input_close(self._dcp_input)
-        # if err != 0:
-        #     raise RuntimeError("Could not close input.")
+        err: int = lib.dcp_input_close(self._dcp_input)
+        if err != 0:
+            raise RuntimeError("Could not close input.")
+
+    def __iter__(self) -> Iterator[DCPProfile]:
+        while True:
+            try:
+                yield self.read()
+            except StopIteration:
+                return
 
     def __del__(self):
         if self._dcp_input != ffi.NULL:
@@ -53,4 +53,4 @@ class Input:
         del exception_type
         del exception_value
         del traceback
-        # self.close()
+        self.close()

@@ -15,7 +15,6 @@ class DCPProfile:
         if self._dcp_profile == ffi.NULL:
             raise RuntimeError("`dcp_profile` is NULL.")
         self._profile = profile
-        self._models: List[imm.Model] = []
 
     @property
     def dcp_profile(self) -> CData:
@@ -28,16 +27,15 @@ class DCPProfile:
         return cls(dcp_profile, prof)
 
     def append_model(self, model: imm.Model):
-        lib.dcp_profile_append_model(self._dcp_profile, model.imm_model)
-        self._models.append(model)
+        self._profile.append_model(model)
 
     @property
     def alphabet(self):
-        return self._profile._alphabet
+        return self._profile.alphabet
 
     @property
     def models(self):
-        return self._models
+        return self._profile.models
 
     @property
     def profid(self) -> int:

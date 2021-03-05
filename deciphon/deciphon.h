@@ -1,4 +1,5 @@
 /* Input */
+int                       dcp_input_close(struct dcp_input* input);
 struct dcp_input*         dcp_input_create(char const* filepath);
 int                       dcp_input_destroy(struct dcp_input* input);
 bool                      dcp_input_end(struct dcp_input const* input);
@@ -20,6 +21,9 @@ struct imm_model*         dcp_profile_get_model(struct dcp_profile const* prof, 
 uint32_t                  dcp_profile_id(struct dcp_profile const* prof);
 struct nmm_profile const* dcp_profile_nmm_profile(struct dcp_profile const* prof);
 uint8_t                   dcp_profile_nmodels(struct dcp_profile const* prof);
+
+void dcp_profile_setup(struct imm_hmm* hmm, struct imm_dp* dp, bool multiple_hits, uint32_t target_length,
+                       bool hmmer3_compat);
 
 /* Result */
 imm_float                dcp_result_alt_loglik(struct dcp_result const* result);
