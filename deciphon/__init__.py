@@ -3,7 +3,7 @@ from importlib import import_module as _import_module
 from .press import press
 from .input import Input
 from .output import Output
-from . import example
+from . import example, test
 
 try:
     from ._ffi import lib
@@ -28,4 +28,5 @@ __all__ = [
     "example",
     "lib",
     "press",
+    "test",
 ]
