@@ -1,6 +1,8 @@
 from importlib import import_module as _import_module
 
 from .press import press
+from .input import Input
+from .output import Output
 from . import example
 
 try:
@@ -10,7 +12,9 @@ except ModuleNotFoundError:
 
 
 __all__ = [
+    "Input",
+    "Output",
     "__version__",
-    "press",
     "example",
+    "press",
 ]

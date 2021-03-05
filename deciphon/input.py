@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Type
 
 from ._cdata import CData
+from .dcp_profile import DCPProfile
 from ._ffi import ffi, lib
-from ._partition import Partition
 
 __all__ = ["Input"]
 
@@ -18,6 +18,17 @@ class Input:
     @classmethod
     def create(cls: Type[Input], filepath: bytes) -> Input:
         return cls(lib.dcp_input_create(filepath))
+
+    def read(self) -> DCPProfile:
+        from . import wrap
+
+        dcp_profile = lib.dcp_input_read(self._dcp_input)
+        if dcp_profile == ffi.NULL:
+            if lib.dcp_input_end(self._dcp_input):
+                raise StopIteration
+            raise RuntimeError("Could not read profile.")
+
+        return wrap.dcp_profile(dcp_profile)
 
     def create_partition(self, part: int, nparts: int) -> Partition:
         dcp_partition = lib.dcp_input_create_partition(self._dcp_input, part, nparts)

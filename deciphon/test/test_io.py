@@ -4,7 +4,7 @@ import shutil
 from pathlib import Path
 
 
-def test_io(tmp_path: Path):
+def test_press(tmp_path: Path):
     os.chdir(tmp_path)
     filepath = dcp.example.get("minifam.hmm")
     filename = filepath.name
