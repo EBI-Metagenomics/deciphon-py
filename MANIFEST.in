@@ -1,6 +1,8 @@
 include LICENSE.md
 include README.md
 include version.py
+include deciphon/test/minifam_consensus.fasta
+include deciphon/test/minifam_desired.json
 exclude .pre-commit-config.yaml
 exclude .flake8
-exclude .ignore
+exclude .gitignore

@@ -1,5 +1,6 @@
 import deciphon as dcp
 import os
+import imm
 import shutil
 from pathlib import Path
 
@@ -11,71 +12,8 @@ def test_press(tmp_path: Path):
     shutil.copy(filepath, filename)
     dcp.press(filename)
 
-    # with open("consensus.fasta", "w") as file:
-    #     file.write(_consensus)
 
-    # with open("desired_output.gff", "w") as file:
-    #     file.write(_desired_output)
-
-    # with open("desired_ocodon.fasta", "w") as file:
-    #     file.write(_desired_ocodon)
-
-    # with open("desired_oamino.fasta", "w") as file:
-    #     file.write(_desired_oamino)
-
-    # r = invoke(cli, ["pscan3", str(profile), "consensus.fasta"])
-    # assert r.exit_code == 0, r.output
-
-    # oamino = "desired_oamino.fasta"
-    # assert_that(contents_of("oamino.fasta")).is_equal_to(contents_of(oamino))
-    # ocodon = "desired_ocodon.fasta"
-    # assert_that(contents_of("ocodon.fasta")).is_equal_to(contents_of(ocodon))
-    # output = "desired_output.gff"
-    # assert_that(contents_of("output.gff")).is_equal_to(contents_of(output))
-
-
-_consensus = """>Homoserine_dh-consensus
-CCTATCATTTCGACGCTCAAGGAGTCGCTGACAGGTGACCGTATTACTCGAATCGAAGGG
-ATATTAAACGGCACCCTGAATTACATTCTCACTGAGATGGAGGAAGAGGGGGCTTCATTC
-TCTGAGGCGCTGAAGGAGGCACAGGAATTGGGCTACGCGGAAGCGGATCCTACGGACGAT
-GTGGAAGGGCTAGATGCTGCTAGAAAGCTGGCAATTCTAGCCAGATTGGCATTTGGGTTA
-GAGGTCGAGTTGGAGGACGTAGAGGTGGAAGGAATTGAAAAGCTGACTGCCGAAGATATT
-GAAGAAGCGAAGGAAGAGGGTAAAGTTTTAAAACTAGTGGCAAGCGCCGTCGAAGCCAGG
-GTCAAGCCTGAGCTGGTACCTAAGTCACATCCATTAGCCTCGGTAAAAGGCTCTGACAAC
-GCCGTGGCTGTAGAAACGGAACGGGTAGGCGAACTCGTAGTGCAGGGACCAGGGGCTGGC
-GCAGAGCCAACCGCATCCGCTGTACTCGCTGACCTTCTC
->AA_kinase-consensus
-AAACGTGTAGTTGTAAAGCTTGGGGGTAGTTCTCTGACAGATAAGGAAGAGGCATCACTC
-AGGCGTTTAGCTGAGCAGATTGCAGCATTAAAAGAGAGTGGCAATAAACTAGTGGTCGTG
-CATGGAGGCGGCAGCTTCACTGATGGTCTGCTGGCATTGAAAAGTGGCCTGAGCTCGGGC
-GAATTAGCTGCGGGGTTGAGGAGCACGTTAGAAGAGGCCGGAGAAGTAGCGACGAGGGAC
-GCCCTAGCTAGCTTAGGGGAACGGCTTGTTGCAGCGCTGCTGGCGGCGGGTCTCCCTGCT
-GTAGGACTCAGCGCCGCTGCGTTAGATGCGACGGAGGCGGGCCGGGATGAAGGCAGCGAC
-GGGAACGTCGAGTCCGTGGACGCAGAAGCAATTGAGGAGTTGCTTGAGGCCGGGGTGGTC
-CCCGTCCTAACAGGATTTATCGGCTTAGACGAAGAAGGGGAACTGGGAAGGGGATCTTCT
-GACACCATCGCTGCGTTACTCGCTGAAGCTTTAGGCGCGGACAAACTCATAATACTGACC
-GACGTAGACGGCGTTTACGATGCCGACCCTAAAAAGGTCCCAGACGCGAGGCTCTTGCCA
-GAGATAAGTGTGGACGAGGCCGAGGAAAGCGCCTCCGAATTAGCGACCGGTGGGATGAAG
-GTCAAACATCCAGCGGCTCTTGCTGCAGCTAGACGGGGGGGTATTCCGGTCGTGATAACG
-AAT
->23ISL-consensus
-CAGGGTCTGGATAACGCTAATCGTTCGCTAGTTCGCGCTACAAAAGCAGAAAGTTCAGAT
-ATACGGAAAGAGGTGACTAACGGCATCGCTAAAGGGCTGAAGCTAGACAGTCTGGAAACA
-GCTGCAGAGTCGAAGAACTGCTCAAGCGCACAGAAAGGCGGATCGCTAGCTTGGGCAACC
-AACTCCCAACCACAGCCTCTCCGTGAAAGTAAGCTTGAGCCATTGGAAGACTCCCCACGT
-AAGGCTTTAAAAACACCTGTGTTGCAAAAGACATCCAGTACCATAACTTTACAAGCAGTC
-AAGGTTCAACCTGAACCCCGCGCTCCCGTCTCCGGGGCGCTGTCCCCGAGCGGGGAGGAA
-CGCAAGCGCCCAGCTGCGTCTGCTCCCGCTACCTTACCGACACGACAGAGTGGTCTAGGT
-TCTCAGGAAGTCGTTTCGAAGGTGGCGACTCGCAAAATTCCAATGGAGTCACAACGCGAG
-TCGACT
-"""
-
-
-def test_scan(tmp_path: Path, minifam_desired):
-    from io import StringIO
-    import deciphon as dcp
-    import fasta_reader as fr
-    import imm
+def test_scan(tmp_path: Path, minifam_consensus, minifam_desired):
     from imm.testing import assert_allclose
 
     os.chdir(tmp_path)
@@ -89,7 +27,7 @@ def test_scan(tmp_path: Path, minifam_desired):
 
         multiple_hits = True
         hmmer3_compat = False
-        for tgt in fr.read_fasta(StringIO(_consensus)):
+        for tgt in minifam_consensus:
             tmp = minifam_desired
             tmp2 = (d for d in tmp if d["defline"] == tgt.defline and d["profid"] == i)
             desired = next(tmp2)
