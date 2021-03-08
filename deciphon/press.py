@@ -1,14 +1,14 @@
 from pathlib import Path
-
 from typing import Union
-from hmmer_reader import num_models, open_hmmer
+
 import imm
 import nmm
-from .output import Output
-from .dcp_profile import DCPProfile
+from hmmer_reader import num_models, open_hmmer
 from tqdm import tqdm
 
+from .dcp_profile import DCPProfile
 from .hmmer_model import HMMERModel
+from .output import Output
 from .protein_profile import create_profile
 
 __all__ = ["press"]

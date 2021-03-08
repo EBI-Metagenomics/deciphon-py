@@ -1,9 +1,9 @@
 from importlib import import_module as _import_module
 
-from .press import press
+from . import example, test
 from .input import Input
 from .output import Output
-from . import example, test
+from .press import press
 
 try:
     from ._ffi import lib

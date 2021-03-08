@@ -9,8 +9,8 @@ import imm
 from imm import (
     DP,
     HMM,
-    DPTask,
     CData,
+    DPTask,
     MuteState,
     Path,
     Sequence,

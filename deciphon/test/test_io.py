@@ -1,8 +1,10 @@
-import deciphon as dcp
 import os
-import imm
 import shutil
 from pathlib import Path
+
+import imm
+
+import deciphon as dcp
 
 
 def test_press(tmp_path: Path):
@@ -35,8 +37,13 @@ def test_scan(tmp_path: Path, minifam_consensus, minifam_desired):
             dp_task = imm.DPTask.create(alt.dp)
             dp_task.setup(seq)
             target_length = len(seq)
-            dcp.lib.dcp_profile_setup(alt.hmm.imm_hmm, alt.dp.imm_dp,
-                                      multiple_hits, target_length, hmmer3_compat)
+            dcp.lib.dcp_profile_setup(
+                alt.hmm.imm_hmm,
+                alt.dp.imm_dp,
+                multiple_hits,
+                target_length,
+                hmmer3_compat,
+            )
             result = alt.dp.viterbi(dp_task)
             loglik = alt.hmm.loglikelihood(seq, result.path)
             assert_allclose(loglik, float(desired["loglik"]))

@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+from typing import Type
+
 import imm
 import nmm
-from typing import List, Type
+
 from ._cdata import CData
 from ._ffi import ffi, lib
 

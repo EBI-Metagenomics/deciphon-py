@@ -3,30 +3,23 @@ from __future__ import annotations
 from math import log
 from typing import List, Type, Union
 
-from imm import (
-    MuteState,
-    Sequence,
-    lprob_add,
-    lprob_normalize,
-    lprob_zero,
-)
+from imm import MuteState, Sequence, lprob_add, lprob_zero
 from nmm import (
+    AminoAlphabet,
     AminoLprob,
     BaseLprob,
     CodonLprob,
-    FrameState,
-    codon_iter,
-    AminoAlphabet,
     CodonMarg,
     DNAAlphabet,
+    FrameState,
     RNAAlphabet,
+    codon_iter,
 )
 
-from .model import AltModel, Node, NullModel, SpecialNode, EntryDistr, Transitions
 from .codon_table import CodonTable
 from .hmmer_model import HMMERModel
+from .model import AltModel, EntryDistr, Node, NullModel, SpecialNode, Transitions
 from .profile import Profile, ProfileID
-
 
 __all__ = ["ProteinProfile", "create_profile"]
 

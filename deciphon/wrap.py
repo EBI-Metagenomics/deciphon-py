@@ -1,8 +1,8 @@
 import nmm
-from .dcp_profile import DCPProfile
+
 from ._cdata import CData
 from ._ffi import lib
-
+from .dcp_profile import DCPProfile
 
 __all__ = ["dcp_profile"]
 

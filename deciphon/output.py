@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Type
 
-from .dcp_profile import DCPProfile
-
 from ._cdata import CData
 from ._ffi import ffi, lib
+from .dcp_profile import DCPProfile
 
 __all__ = ["Output"]
 
