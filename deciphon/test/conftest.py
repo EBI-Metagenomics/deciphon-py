@@ -11,12 +11,17 @@ def minifam():
     import deciphon as dcp
 
     fasta = pkg_resources.read_text(dcp.test, "minifam.fasta")
-    desired = pkg_resources.read_text(dcp.test, "minifam.json")
+    data = json.loads(pkg_resources.read_text(dcp.test, "minifam.json"))
+
+    desired = {}
+    for d in data:
+        key = (d["profile"], d["target"])
+        desired[key] = {"loglik": float(d["loglik"]), "path": d["path"]}
 
     return {
         "hmm": dcp.example.get("minifam.hmm"),
         "targets": fr.read_fasta(StringIO(fasta)).read_items(),
-        "desired": json.loads(desired),
+        "desired": desired,
     }
 
 
@@ -25,10 +30,15 @@ def pfam24():
     import deciphon as dcp
 
     fasta = pkg_resources.read_text(dcp.test, "AE014075.1.fasta")
-    desired = pkg_resources.read_text(dcp.test, "pfam24_AE014075.json")
+    data = json.loads(pkg_resources.read_text(dcp.test, "pfam24_AE014075.json"))
+
+    desired = {}
+    for d in data:
+        key = (d["profile"], d["target"])
+        desired[key] = {"loglik": float(d["loglik"])}
 
     return {
         "hmm": dcp.example.get("Pfam-A_24.hmm"),
         "targets": fr.read_fasta(StringIO(fasta)).read_items(),
-        "desired": json.loads(desired),
+        "desired": desired,
     }

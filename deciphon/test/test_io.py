@@ -18,20 +18,21 @@ def test_press(tmp_path: Path):
 
 def test_scan_minifam(tmp_path: Path, minifam):
     os.chdir(tmp_path)
+
+    desired = minifam["desired"]
+
     filepath = minifam["hmm"]
     shutil.copy(filepath, filepath.name)
     dcp.press(filepath.name)
-    filename = bytes(Path(filepath.name).with_suffix(".deciphon"))
-    for i, prof in enumerate(dcp.Input.create(filename)):
+    filename = bytes(Path(filepath.name).with_suffix(".dcp"))
+    for prof in dcp.Input.create(filename):
+        prof_acc = prof.metadata.acc.decode()
         alt = prof.models[0]
         # null = prof.models[1]
 
         multiple_hits = True
         hmmer3_compat = False
         for tgt in minifam["targets"]:
-            tmp = minifam["desired"]
-            tmp2 = (d for d in tmp if d["defline"] == tgt.defline and d["profid"] == i)
-            desired = next(tmp2)
             seq = imm.Sequence.create(tgt.sequence.encode(), alt.hmm.alphabet)
             dp_task = imm.DPTask.create(alt.dp)
             dp_task.setup(seq)
@@ -45,20 +46,19 @@ def test_scan_minifam(tmp_path: Path, minifam):
             )
             result = alt.dp.viterbi(dp_task)
             loglik = alt.hmm.loglikelihood(seq, result.path)
-            assert_allclose(loglik, float(desired["loglik"]))
-            assert str(result.path) == desired["path"]
+            key = (prof_acc, tgt.id)
+            assert_allclose(loglik, desired[key]["loglik"])
 
 
 def test_scan_pfam24_AE014075(tmp_path: Path, pfam24):
     os.chdir(tmp_path)
 
-    tmp = pfam24["desired"]
-    desired = {(d["profile"], d["target"]): d["loglik"] for d in tmp}
+    desired = pfam24["desired"]
 
     filepath = pfam24["hmm"]
     shutil.copy(filepath, filepath.name)
     dcp.press(filepath.name)
-    filename = bytes(Path(filepath.name).with_suffix(".deciphon"))
+    filename = bytes(Path(filepath.name).with_suffix(".dcp"))
 
     for prof in dcp.Input.create(filename):
         prof_acc = prof.metadata.acc.decode()
@@ -81,5 +81,4 @@ def test_scan_pfam24_AE014075(tmp_path: Path, pfam24):
             result = alt.dp.viterbi(dp_task)
             loglik = alt.hmm.loglikelihood(seq, result.path)
             key = (prof_acc, tgt.id)
-            if key in desired:
-                assert_allclose(loglik, float(desired[key]))
+            assert_allclose(loglik, desired[key]["loglik"])

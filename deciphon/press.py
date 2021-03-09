@@ -21,7 +21,7 @@ def press(hmm_filepath: Union[Path, str]):
 
     total = num_models(hmm_filepath)
     epsilon = 0.01
-    bin_filepath = hmm_filepath.with_suffix(".deciphon").name.encode()
+    bin_filepath = hmm_filepath.with_suffix(".dcp").name.encode()
 
     with Output.create(bin_filepath) as output:
         with open_hmmer(hmm_filepath) as parser:
