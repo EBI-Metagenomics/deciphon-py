@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from .dcp_profile import DCPProfile
 from .hmmer_model import HMMERModel
+from .metadata import Metadata
 from .output import Output
 from .protein_profile import create_profile
 
@@ -24,11 +25,13 @@ def press(hmm_filepath: Union[Path, str]):
 
     with Output.create(bin_filepath) as output:
         with open_hmmer(hmm_filepath) as parser:
-            for plain_model in tqdm(parser, total=total, desc="Pressing"):
-                model = HMMERModel(plain_model)
+            for hmmer3 in tqdm(parser, total=total, desc="Pressing"):
+                model = HMMERModel(hmmer3)
+                data = dict(hmmer3.metadata)
+                mt = Metadata.create(data["NAME"].encode(), data["ACC"].encode())
                 prof = create_profile(model, base_abc, 0, epsilon)
 
-                nprof = DCPProfile.create(base_abc)
+                nprof = DCPProfile.create(base_abc, mt)
 
                 hmm = prof.alt_model.hmm
                 dp = hmm.create_dp(prof.alt_model.special_node.T)

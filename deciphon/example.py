@@ -9,6 +9,7 @@ pooch.get_logger().setLevel(logging.ERROR)
 
 registry = {
     "minifam.hmm.gz": "md5:be34be2c5bcadcf670031c789b91674b",
+    "Pfam-A_24.hmm.gz": "md5:1728570f2d8aba5b140e9ff4071fb0f9",
 }
 
 goodboy = pooch.create(

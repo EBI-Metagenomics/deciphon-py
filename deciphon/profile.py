@@ -28,19 +28,10 @@ class Profile(ABC):
         self._special_trans = SpecialTransitions()
         self._hmmer3_compat = hmmer3_compat
         self._set_target_length_model(1)
-        self._window_length: int = 0
 
     @property
     def profid(self) -> ProfileID:
         return self._profid
-
-    @property
-    def window_length(self) -> int:
-        return self._window_length
-
-    @window_length.setter
-    def window_length(self, length: int) -> None:
-        self._window_length = length
 
     @property
     def alphabet(self):

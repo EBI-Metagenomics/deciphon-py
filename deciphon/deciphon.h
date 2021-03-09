@@ -5,6 +5,12 @@ int                       dcp_input_destroy(struct dcp_input* input);
 bool                      dcp_input_end(struct dcp_input const* input);
 struct dcp_profile const* dcp_input_read(struct dcp_input* input);
 
+/* Metadata */
+struct dcp_metadata* dcp_metadata_create(char const* name, char const* acc);
+void                 dcp_metadata_destroy(struct dcp_metadata const* mt);
+char const*          dcp_metadata_acc(struct dcp_metadata const* mt);
+char const*          dcp_metadata_name(struct dcp_metadata const* mt);
+
 /* Ouput */
 int                dcp_output_close(struct dcp_output* output);
 struct dcp_output* dcp_output_create(char const* filepath);
@@ -12,15 +18,16 @@ int                dcp_output_destroy(struct dcp_output* output);
 int                dcp_output_write(struct dcp_output* output, struct dcp_profile const* prof);
 
 /* Profile */
-struct imm_abc const*     dcp_profile_abc(struct dcp_profile const* prof);
-void                      dcp_profile_append_model(struct dcp_profile* prof, struct imm_model* model);
-struct dcp_profile*       dcp_profile_create(struct imm_abc const* abc);
-void                      dcp_profile_destroy(struct dcp_profile const* prof, bool deep);
-void                      dcp_profile_free(struct dcp_profile const* prof);
-struct imm_model*         dcp_profile_get_model(struct dcp_profile const* prof, uint8_t i);
-uint32_t                  dcp_profile_id(struct dcp_profile const* prof);
-struct nmm_profile const* dcp_profile_nmm_profile(struct dcp_profile const* prof);
-uint8_t                   dcp_profile_nmodels(struct dcp_profile const* prof);
+struct imm_abc const*      dcp_profile_abc(struct dcp_profile const* prof);
+void                       dcp_profile_append_model(struct dcp_profile* prof, struct imm_model* model);
+struct dcp_profile*        dcp_profile_create(struct imm_abc const* abc, struct dcp_metadata const* mt);
+void                       dcp_profile_destroy(struct dcp_profile const* prof, bool deep);
+void                       dcp_profile_free(struct dcp_profile const* prof);
+struct imm_model*          dcp_profile_model(struct dcp_profile const* prof, uint8_t i);
+uint32_t                   dcp_profile_id(struct dcp_profile const* prof);
+struct dcp_metadata const* dcp_profile_metadata(struct dcp_profile const* prof);
+struct nmm_profile const*  dcp_profile_nmm_profile(struct dcp_profile const* prof);
+uint8_t                    dcp_profile_nmodels(struct dcp_profile const* prof);
 
 void dcp_profile_setup(struct imm_hmm* hmm, struct imm_dp* dp, bool multiple_hits, uint32_t target_length,
                        bool hmmer3_compat);

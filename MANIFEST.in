@@ -1,7 +1,9 @@
-include LICENSE.md
-include README.md
-include deciphon/test/minifam_consensus.fasta
-include deciphon/test/minifam_desired.json
-exclude .pre-commit-config.yaml
 exclude .flake8
 exclude .gitignore
+exclude .pre-commit-config.yaml
+exclude deciphon/test/AE014075.1.fasta
+exclude deciphon/test/minifam.fasta
+exclude deciphon/test/minifam.json
+exclude deciphon/test/pfam24_AE014075.json
+include LICENSE.md
+include README.md
