@@ -28,10 +28,17 @@ def test_scan_minifam_server(tmp_path: Path, minifam):
 
     # multiple_hits = True
     # hmmer3_compat = False
+    desired_loglikgs = [
+        [-538.134521484375, -747.7845458984375, -762.9783935546875],
+        [-1067.360107421875, -792.2489624023438, -1089.6944580078125],
+        [-713.920654296875, -714.9746704101562, -480.3268737792969],
+    ]
     server = dcp.Server(filename)
-    for tgt in minifam["targets"]:
-        alt_logliks = server.scan(tgt.sequence.encode())
-        del alt_logliks
+    for i, tgt in enumerate(minifam["targets"]):
+        alt_logliks, profids = server.scan(tgt.sequence.encode())
+        lista = zip(alt_logliks, profids)
+        alt_logliks = [v[0] for v in sorted(lista, key=lambda j: j[1])]
+        assert_allclose(alt_logliks, desired_loglikgs[i])
 
 
 def test_scan_minifam(tmp_path: Path, minifam):
