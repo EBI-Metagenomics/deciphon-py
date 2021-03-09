@@ -4,6 +4,7 @@ from . import example, test
 from .input import Input
 from .output import Output
 from .press import press
+from .server import Server
 
 try:
     from ._ffi import lib
@@ -24,6 +25,7 @@ except ModuleNotFoundError:
 __all__ = [
     "Input",
     "Output",
+    "Server",
     "__version__",
     "example",
     "lib",

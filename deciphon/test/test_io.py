@@ -16,6 +16,24 @@ def test_press(tmp_path: Path):
     dcp.press(filename)
 
 
+def test_scan_minifam_server(tmp_path: Path, minifam):
+    os.chdir(tmp_path)
+
+    # desired = minifam["desired"]
+
+    filepath = minifam["hmm"]
+    shutil.copy(filepath, filepath.name)
+    dcp.press(filepath.name)
+    filename = Path(filepath.name).with_suffix(".dcp")
+
+    # multiple_hits = True
+    # hmmer3_compat = False
+    server = dcp.Server(filename)
+    for tgt in minifam["targets"]:
+        alt_logliks = server.scan(tgt.sequence.encode())
+        del alt_logliks
+
+
 def test_scan_minifam(tmp_path: Path, minifam):
     os.chdir(tmp_path)
 

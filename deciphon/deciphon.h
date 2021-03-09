@@ -40,3 +40,9 @@ void                     dcp_result_destroy(struct dcp_result const* result);
 imm_float                dcp_result_null_loglik(struct dcp_result const* result);
 struct imm_result const* dcp_result_null_result(struct dcp_result const* result);
 uint32_t                 dcp_result_profid(struct dcp_result const* result);
+
+/* Server */
+struct dcp_server*        dcp_server_create(char const* filepath);
+void                      dcp_server_destroy(struct dcp_server const* server);
+double                    dcp_server_elapsed(struct dcp_server const* server);
+struct dcp_result const** dcp_server_scan(struct dcp_server* server, char const* sequence, uint32_t* nresults);
