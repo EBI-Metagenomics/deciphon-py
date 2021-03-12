@@ -4,9 +4,10 @@ import fasta_reader as fr
 
 import deciphon as dcp
 
-if __name__ == "__main__":
-    db = "/Users/horta/tmp/oi/Pfam-A_4.dcp"
-    dna_fasta = "/Users/horta/tmp/oi/dna.fasta"
+
+def scan_rob(db_filepath, fasta_filepath):
+    # db = "/Users/horta/tmp/oi/Pfam-A_4.dcp"
+    # dna_fasta = "/Users/horta/tmp/oi/dna.fasta"
     # amino.fasta  codon.fasta  data.json  data.py  dna.fasta  output.gff  Pfam-A_4.dcp
 
     multiple_hits = True
@@ -14,12 +15,12 @@ if __name__ == "__main__":
     task = dcp.Task(True, True, multiple_hits, hmmer3_compat)
     tgt_id = []
     targets = []
-    for tgt in fr.read_fasta(dna_fasta):
+    for tgt in fr.read_fasta(fasta_filepath):
         task.add(tgt.sequence.encode())
         targets.append(tgt.sequence.encode())
         tgt_id.append(tgt.id)
 
-    server = dcp.Server(Path(db))
+    server = dcp.Server(Path(db_filepath))
     server.scan(task)
     task_result = task.result
     ritems = []
@@ -35,9 +36,9 @@ if __name__ == "__main__":
 
     ritems = sorted(ritems, key=lambda i: (i[0], i[1], i[2], i[3]))
     ritems = [(frag_id + 1,) + i for frag_id, i in enumerate(ritems)]
-    output = dcp.OutputWriter("output.gff")
-    cwriter = fr.FASTAWriter("ocodon.fasta")
-    awriter = fr.FASTAWriter("oamino.fasta")
+    output = dcp.OutputWriter("output.gff.bak")
+    cwriter = fr.FASTAWriter("ocodon.fasta.bak")
+    awriter = fr.FASTAWriter("oamino.fasta.bak")
 
     for i in ritems:
         output.write_item(

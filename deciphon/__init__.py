@@ -1,6 +1,7 @@
 from importlib import import_module as _import_module
 
 from . import example, test
+from .hmmer_filter import hmmer_filter
 from .input import Input
 from .legacy_result import legacy_result
 from .output import Output
@@ -8,6 +9,7 @@ from .output_writer import OutputWriter
 from .press import press
 from .profile import ProfileID
 from .result import Result
+from .rob import scan_rob
 from .server import Server
 from .task import Task
 from .task_result import TaskResult
@@ -43,4 +45,6 @@ __all__ = [
     "test",
     "OutputWriter",
     "ProfileID",
+    "hmmer_filter",
+    "scan_rob",
 ]
