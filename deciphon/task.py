@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from nmm import DNAAlphabet, IUPACAminoAlphabet
+
 from ._ffi import ffi, lib
+from .codon_table import CodonTable
 from .task_result import TaskResult
 
 __all__ = ["Task"]
@@ -33,7 +36,10 @@ class Task:
     @property
     def result(self):
         if self._task_result is None:
-            self._task_result = TaskResult(lib.dcp_task_results(self._dcp_task))
+            abc = DNAAlphabet()
+            codon_table = CodonTable(abc, IUPACAminoAlphabet())
+            dcp_task_results = lib.dcp_task_results(self._dcp_task)
+            self._task_result = TaskResult(dcp_task_results, codon_table)
         return self._task_result
 
     def reset(self):

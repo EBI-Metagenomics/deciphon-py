@@ -24,9 +24,11 @@ def get_data(filename: str):
             "alt_loglik": d["alt_loglik"],
             "alt_path": d["alt_path"],
             "alt_codon_stream": d["alt_codon_stream"],
+            "alt_amino_stream": d["alt_amino_stream"],
             "null_loglik": d["null_loglik"],
             "null_path": d["null_path"],
             "null_codon_stream": d["null_codon_stream"],
+            "null_amino_stream": d["null_amino_stream"],
         }
 
     return {
