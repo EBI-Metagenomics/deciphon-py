@@ -36,10 +36,12 @@ uint8_t                    dcp_profile_nmodels(struct dcp_profile const* prof);
 imm_float                dcp_result_alt_loglik(struct dcp_result const* result);
 struct imm_result const* dcp_result_alt_result(struct dcp_result const* result);
 char const*              dcp_result_alt_stream(struct dcp_result const* result);
+char const*              dcp_result_alt_codon_stream(struct dcp_result const* result);
 void                     dcp_result_destroy(struct dcp_result const* result);
 imm_float                dcp_result_null_loglik(struct dcp_result const* result);
 struct imm_result const* dcp_result_null_result(struct dcp_result const* result);
 char const*              dcp_result_null_stream(struct dcp_result const* result);
+char const*              dcp_result_null_codon_stream(struct dcp_result const* result);
 uint32_t                 dcp_result_profid(struct dcp_result const* result);
 uint32_t                 dcp_result_seqid(struct dcp_result const* result);
 

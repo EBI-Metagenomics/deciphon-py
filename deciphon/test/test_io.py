@@ -45,8 +45,10 @@ def test_scan_minifam_server(tmp_path: Path, minifam):
                 # print(f"\"profile\": \"{server.metadata(r.profid).acc}\",")
                 # print(f"\"alt_loglik\": {r.alt_loglik},")
                 # print(f"\"alt_path\": \"{r.alt_stream}\",")
+                # print(f"\"alt_codon_stream\": \"{r.alt_codon_stream}\",")
                 # print(f"\"null_loglik\": {r.null_loglik},")
-                # print(f"\"null_path\": \"{r.null_stream}\"")
+                # print(f"\"null_path\": \"{r.null_stream}\",")
+                # print(f"\"null_codon_stream\": \"{r.null_codon_stream}\"")
                 # print("},")
                 target = tgt_id[r.seqid]
                 profile = server.metadata(r.profid).acc
@@ -55,6 +57,8 @@ def test_scan_minifam_server(tmp_path: Path, minifam):
                 assert_allclose(desired[key]["null_loglik"], r.null_loglik)
                 assert desired[key]["alt_path"] == r.alt_stream
                 assert desired[key]["null_path"] == r.null_stream
+                assert desired[key]["alt_codon_stream"] == r.alt_codon_stream
+                assert desired[key]["null_codon_stream"] == r.null_codon_stream
     # print("]")
 
 
@@ -88,8 +92,10 @@ def test_scan_pfam24_server(tmp_path: Path, pfam24):
                 # print(f"\"profile\": \"{server.metadata(r.profid).acc}\",")
                 # print(f"\"alt_loglik\": {r.alt_loglik},")
                 # print(f"\"alt_path\": \"{r.alt_stream}\",")
+                # print(f"\"alt_codon_stream\": \"{r.alt_codon_stream}\",")
                 # print(f"\"null_loglik\": {r.null_loglik},")
-                # print(f"\"null_path\": \"{r.null_stream}\"")
+                # print(f"\"null_path\": \"{r.null_stream}\",")
+                # print(f"\"null_codon_stream\": \"{r.null_codon_stream}\"")
                 # print("},")
                 target = tgt_id[r.seqid]
                 profile = server.metadata(r.profid).acc
@@ -98,4 +104,6 @@ def test_scan_pfam24_server(tmp_path: Path, pfam24):
                 assert_allclose(desired[key]["null_loglik"], r.null_loglik)
                 assert desired[key]["alt_path"] == r.alt_stream
                 assert desired[key]["null_path"] == r.null_stream
+                assert desired[key]["alt_codon_stream"] == r.alt_codon_stream
+                assert desired[key]["null_codon_stream"] == r.null_codon_stream
     # print("]")

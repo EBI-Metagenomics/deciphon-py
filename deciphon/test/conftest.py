@@ -23,8 +23,10 @@ def get_data(filename: str):
         desired[key] = {
             "alt_loglik": d["alt_loglik"],
             "alt_path": d["alt_path"],
+            "alt_codon_stream": d["alt_codon_stream"],
             "null_loglik": d["null_loglik"],
             "null_path": d["null_path"],
+            "null_codon_stream": d["null_codon_stream"],
         }
 
     return {

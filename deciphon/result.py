@@ -29,12 +29,20 @@ class Result:
         return ffi.string(lib.dcp_result_alt_stream(self._dcp_result)).decode()
 
     @property
+    def alt_codon_stream(self):
+        return ffi.string(lib.dcp_result_alt_codon_stream(self._dcp_result)).decode()
+
+    @property
     def null_loglik(self) -> float:
         return lib.dcp_result_null_loglik(self._dcp_result)
 
     @property
     def null_stream(self):
         return ffi.string(lib.dcp_result_null_stream(self._dcp_result)).decode()
+
+    @property
+    def null_codon_stream(self):
+        return ffi.string(lib.dcp_result_null_codon_stream(self._dcp_result)).decode()
 
     def __del__(self):
         if self._dcp_result != ffi.NULL:
