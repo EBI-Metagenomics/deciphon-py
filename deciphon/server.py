@@ -3,6 +3,8 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._ffi import ffi, lib
+from .metadata import Metadata
+from .task import Task
 
 __all__ = ["Server"]
 
@@ -15,15 +17,19 @@ class Server:
         if self._dcp_server == ffi.NULL:
             raise RuntimeError("`dcp_server` is NULL.")
 
-    def scan(self, sequence: bytes):
-        nresults = ffi.new("uint32_t[1]")
-        results = lib.dcp_server_scan(self._dcp_server, sequence, nresults)
-        alt_logliks = []
-        profids = []
-        for i in range(nresults[0]):
-            alt_logliks.append(lib.dcp_result_alt_loglik(results[i]))
-            profids.append(lib.dcp_result_profid(results[i]))
-        return alt_logliks, profids
+        ids = range(lib.dcp_server_nprofiles(self._dcp_server))
+        ptrs = [lib.dcp_server_metadata(self._dcp_server, i) for i in ids]
+        self._metadatas = [Metadata(ptr, False) for ptr in ptrs]
+
+    def scan(self, task: Task):
+        lib.dcp_server_scan(self._dcp_server, task.dcp_task)
+
+    def metadata(self, profid: int):
+        return self._metadatas[profid]
+
+    @property
+    def nprofiles(self) -> int:
+        return lib.dcp_server_nprofiles(self._dcp_server)
 
     def __del__(self):
         if self._dcp_server != ffi.NULL:

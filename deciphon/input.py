@@ -15,6 +15,8 @@ class Input:
         if self._dcp_input == ffi.NULL:
             raise RuntimeError("`dcp_input` is NULL.")
 
+        # dcp_input_metadata(struct dcp_input const* input, uint32_t profid);
+
     @classmethod
     def create(cls: Type[Input], filepath: bytes) -> Input:
         return cls(lib.dcp_input_create(filepath))
@@ -29,6 +31,15 @@ class Input:
             raise RuntimeError("Could not read profile.")
 
         return wrap.dcp_profile(dcp_profile)
+
+    @property
+    def nprofiles(self) -> int:
+        return lib.dcp_input_nprofiles(self._dcp_input)
+
+    def reset(self):
+        err: int = lib.dcp_input_reset(self._dcp_input)
+        if err != 0:
+            raise RuntimeError("Could not reset input.")
 
     def close(self):
         err: int = lib.dcp_input_close(self._dcp_input)

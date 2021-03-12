@@ -7,14 +7,15 @@ __all__ = ["get"]
 
 pooch.get_logger().setLevel(logging.ERROR)
 
+
 registry = {
-    "minifam.hmm.gz": "md5:be34be2c5bcadcf670031c789b91674b",
-    "Pfam-A_24.hmm.gz": "md5:1728570f2d8aba5b140e9ff4071fb0f9",
+    "minifam.hmm.gz": "md5:2f0d22cec2ae29af4755913652d205d4",
+    "pfam24.hmm.gz": "md5:e927fd1fc25bd56d8f70a3fa97223304",
 }
 
 goodboy = pooch.create(
     path=pooch.os_cache("deciphon"),
-    base_url="https://iseq-py.s3.amazonaws.com/",
+    base_url="https://deciphon.s3.amazonaws.com/",
     registry=registry,
 )
 

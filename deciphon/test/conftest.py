@@ -1,3 +1,4 @@
+import gzip
 import json
 from io import StringIO
 
@@ -5,40 +6,39 @@ import fasta_reader as fr
 import importlib_resources as pkg_resources
 import pytest
 
+import deciphon as dcp
 
-@pytest.fixture
-def minifam():
-    import deciphon as dcp
 
-    fasta = pkg_resources.read_text(dcp.test, "minifam.fasta")
-    data = json.loads(pkg_resources.read_text(dcp.test, "minifam.json"))
+def get_data(filename: str):
+
+    fasta_gz = pkg_resources.read_binary(dcp.test, f"{filename}.fasta.gz")
+    fasta = gzip.decompress(fasta_gz).decode()
+
+    json_gz = pkg_resources.read_binary(dcp.test, f"{filename}.json.gz")
+    data = json.loads(gzip.decompress(json_gz))
 
     desired = {}
     for d in data:
-        key = (d["profile"], d["target"])
-        desired[key] = {"loglik": float(d["loglik"]), "path": d["path"]}
+        key = (d["multiple_hits"], d["hmmer3_compat"], d["target"], d["profile"])
+        desired[key] = {
+            "alt_loglik": d["alt_loglik"],
+            "alt_path": d["alt_path"],
+            "null_loglik": d["null_loglik"],
+            "null_path": d["null_path"],
+        }
 
     return {
-        "hmm": dcp.example.get("minifam.hmm"),
+        "hmm": dcp.example.get(f"{filename}.hmm"),
         "targets": fr.read_fasta(StringIO(fasta)).read_items(),
         "desired": desired,
     }
+
+
+@pytest.fixture
+def minifam():
+    return get_data("minifam")
 
 
 @pytest.fixture
 def pfam24():
-    import deciphon as dcp
-
-    fasta = pkg_resources.read_text(dcp.test, "AE014075.1.fasta")
-    data = json.loads(pkg_resources.read_text(dcp.test, "pfam24_AE014075.json"))
-
-    desired = {}
-    for d in data:
-        key = (d["profile"], d["target"])
-        desired[key] = {"loglik": float(d["loglik"])}
-
-    return {
-        "hmm": dcp.example.get("Pfam-A_24.hmm"),
-        "targets": fr.read_fasta(StringIO(fasta)).read_items(),
-        "desired": desired,
-    }
+    return get_data("pfam24")

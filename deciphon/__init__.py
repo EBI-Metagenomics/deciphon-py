@@ -4,7 +4,10 @@ from . import example, test
 from .input import Input
 from .output import Output
 from .press import press
+from .result import Result
 from .server import Server
+from .task import Task
+from .task_result import TaskResult
 
 try:
     from ._ffi import lib
@@ -25,7 +28,10 @@ except ModuleNotFoundError:
 __all__ = [
     "Input",
     "Output",
+    "Result",
     "Server",
+    "Task",
+    "TaskResult",
     "__version__",
     "example",
     "lib",
