@@ -9,7 +9,6 @@ from .output_writer import OutputWriter
 from .press import press
 from .profile import ProfileID
 from .result import Result
-from .rob import scan_rob
 from .server import Server
 from .task import Task
 from .task_result import TaskResult

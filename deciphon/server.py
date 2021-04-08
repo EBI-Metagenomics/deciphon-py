@@ -21,11 +21,26 @@ class Server:
         ptrs = [lib.dcp_server_metadata(self._dcp_server, i) for i in ids]
         self._metadatas = [Metadata(ptr, False) for ptr in ptrs]
 
-    def scan(self, task: Task):
-        lib.dcp_server_scan(self._dcp_server, task.dcp_task)
+    def start(self):
+        assert lib.dcp_server_start(self._dcp_server) == 0
+
+    def stop(self):
+        lib.dcp_server_stop(self._dcp_server)
+
+    def join(self):
+        assert lib.dcp_server_join(self._dcp_server) == 0
+
+    def add_task(self, task: Task):
+        lib.dcp_server_add_task(self._dcp_server, task.dcp_task)
 
     def metadata(self, profid: int):
         return self._metadatas[profid]
+
+    def free_result(self, result):
+        lib.dcp_server_free_result(self._dcp_server, result.dcp_result)
+
+    def free_task(self, task):
+        lib.dcp_server_free_task(self._dcp_server, task.dcp_task)
 
     @property
     def nprofiles(self) -> int:

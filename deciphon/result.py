@@ -17,6 +17,10 @@ class Result:
         self._codon_table = codon_table
 
     @property
+    def dcp_result(self):
+        return self._dcp_result
+
+    @property
     def profid(self) -> int:
         return lib.dcp_result_profid(self._dcp_result)
 
@@ -26,15 +30,21 @@ class Result:
 
     @property
     def alt_loglik(self) -> float:
-        return lib.dcp_result_alt_loglik(self._dcp_result)
+        return lib.dcp_result_loglik(self._dcp_result, 0)
 
     @property
     def alt_stream(self):
-        return ffi.string(lib.dcp_result_alt_stream(self._dcp_result)).decode()
+        dcp_string = lib.dcp_result_path(self._dcp_result, 0)
+        data = lib.dcp_string_data(dcp_string)
+        # size = lib.dcp_string_size(dcp_string)
+        return ffi.string(data).decode()
 
     @property
     def alt_codon_stream(self):
-        return ffi.string(lib.dcp_result_alt_codon_stream(self._dcp_result)).decode()
+        dcp_string = lib.dcp_result_codons(self._dcp_result, 0)
+        data = lib.dcp_string_data(dcp_string)
+        # size = lib.dcp_string_size(dcp_string)
+        return ffi.string(data).decode()
 
     @property
     def alt_amino_stream(self):
@@ -49,15 +59,21 @@ class Result:
 
     @property
     def null_loglik(self) -> float:
-        return lib.dcp_result_null_loglik(self._dcp_result)
+        return lib.dcp_result_loglik(self._dcp_result, 1)
 
     @property
     def null_stream(self):
-        return ffi.string(lib.dcp_result_null_stream(self._dcp_result)).decode()
+        dcp_string = lib.dcp_result_path(self._dcp_result, 1)
+        data = lib.dcp_string_data(dcp_string)
+        # size = lib.dcp_string_size(dcp_string)
+        return ffi.string(data).decode()
 
     @property
     def null_codon_stream(self):
-        return ffi.string(lib.dcp_result_null_codon_stream(self._dcp_result)).decode()
+        dcp_string = lib.dcp_result_codons(self._dcp_result, 1)
+        data = lib.dcp_string_data(dcp_string)
+        # size = lib.dcp_string_size(dcp_string)
+        return ffi.string(data).decode()
 
     @property
     def null_amino_stream(self):
@@ -69,7 +85,3 @@ class Result:
             amino = self._codon_table.amino_acid(codon)
             aminos.append(amino.decode())
         return "".join(aminos)
-
-    def __del__(self):
-        if self._dcp_result != ffi.NULL:
-            lib.dcp_result_destroy(self._dcp_result)

@@ -4,7 +4,7 @@ from nmm import DNAAlphabet, IUPACAminoAlphabet
 
 from ._ffi import ffi, lib
 from .codon_table import CodonTable
-from .task_result import TaskResult
+from .result import Result
 
 __all__ = ["Task"]
 
@@ -26,25 +26,36 @@ class Task:
 
         self._task_result = None
 
+    def end(self):
+        return lib.dcp_task_end(self._dcp_task)
+
+    def read(self):
+        dcp_result = lib.dcp_task_read(self._dcp_task)
+        if dcp_result == ffi.NULL:
+            return None
+        abc = DNAAlphabet()
+        codon_table = CodonTable(abc, IUPACAminoAlphabet())
+        return Result(dcp_result, codon_table)
+
     @property
     def dcp_task(self):
         return self._dcp_task
 
-    def add(self, sequence: bytes):
-        lib.dcp_task_add(self._dcp_task, sequence)
+    def add_seq(self, sequence: bytes):
+        lib.dcp_task_add_seq(self._dcp_task, sequence)
 
-    @property
-    def result(self):
-        if self._task_result is None:
-            abc = DNAAlphabet()
-            codon_table = CodonTable(abc, IUPACAminoAlphabet())
-            dcp_task_results = lib.dcp_task_results(self._dcp_task)
-            self._task_result = TaskResult(dcp_task_results, codon_table)
-        return self._task_result
+    # @property
+    # def result(self):
+    #     if self._task_result is None:
+    #         abc = DNAAlphabet()
+    #         codon_table = CodonTable(abc, IUPACAminoAlphabet())
+    #         dcp_task_results = lib.dcp_task_results(self._dcp_task)
+    #         self._task_result = TaskResult(dcp_task_results, codon_table)
+    #     return self._task_result
 
-    def reset(self):
-        lib.dcp_task_reset(self._dcp_task)
+    # def reset(self):
+    #     lib.dcp_task_reset(self._dcp_task)
 
-    def __del__(self):
-        if self._dcp_task != ffi.NULL:
-            lib.dcp_task_destroy(self._dcp_task)
+    # def __del__(self):
+    #     if self._dcp_task != ffi.NULL:
+    #         lib.dcp_task_destroy(self._dcp_task)

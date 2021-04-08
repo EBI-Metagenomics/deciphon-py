@@ -7,7 +7,7 @@ import nmm.build_ext
 from cffi import FFI
 
 ffibuilder = FFI()
-libs = ["deciphon"]
+libs = ["dcp"]
 
 ffibuilder.include(imm.build_ext.ffibuilder)
 ffibuilder.include(nmm.build_ext.ffibuilder)
@@ -25,7 +25,7 @@ ffibuilder.set_source(
     "deciphon._ffi",
     r"""
     #include "nmm/nmm.h"
-    #include "deciphon/deciphon.h"
+    #include "dcp/dcp.h"
     """,
     libraries=libs,
     extra_link_args=extra_link_args,
