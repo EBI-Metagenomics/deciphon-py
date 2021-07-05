@@ -2,29 +2,34 @@ import os
 from os.path import join
 from typing import List
 
-import imm.build_ext
-import nmm.build_ext
 from cffi import FFI
 
-ffibuilder = FFI()
-libs = ["dcp"]
+__all__ = ["ffibuilder", "imm_float"]
 
-ffibuilder.include(imm.build_ext.ffibuilder)
-ffibuilder.include(nmm.build_ext.ffibuilder)
+imm_float = "float"
+IMM_DOUBLE_PRECISION = os.environ.get("IMM_DOUBLE_PRECISION", "False").lower()
+if IMM_DOUBLE_PRECISION in ["true", "1", "on"]:
+    imm_float = "double"
+
+ffibuilder = FFI()
+libs = ["dcp", "imm"]
 
 folder = os.path.dirname(os.path.abspath(__file__))
 
-with open(join(folder, "deciphon.h"), "r") as f:
+with open(join(folder, "imm.h"), "r") as f:
+    ffibuilder.cdef(f.read().replace("__IMM_FLOAT__", imm_float))
+
+with open(join(folder, "dcp.h"), "r") as f:
     ffibuilder.cdef(f.read())
 
 extra_link_args: List[str] = []
-if "DECIPHON_EXTRA_LINK_ARGS" in os.environ:
-    extra_link_args += os.environ["DECIPHON_EXTRA_LINK_ARGS"].split(os.pathsep)
+if "DCP_EXTRA_LINK_ARGS" in os.environ:
+    extra_link_args += os.environ["DCP_EXTRA_LINK_ARGS"].split(os.pathsep)
 
 ffibuilder.set_source(
     "deciphon._ffi",
     r"""
-    #include "nmm/nmm.h"
+    #include "imm/imm.h"
     #include "dcp/dcp.h"
     """,
     libraries=libs,

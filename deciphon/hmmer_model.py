@@ -1,17 +1,17 @@
 from math import log
-from typing import List, Mapping, NamedTuple, Union
+from typing import List, Mapping, NamedTuple
 
 import hmmer_reader
-from imm import lprob_zero
-from nmm import DNAAlphabet, IUPACAminoAlphabet, RNAAlphabet
 
-from .alphabet import infer_alphabet
+from . import lprob
+from .alphabet import AminoAlphabet, infer_alphabet
 from .model import Transitions
 
 __all__ = ["HMMERModel", "ModelID"]
 
 ModelID = NamedTuple("ModelID", [("name", str), ("acc", str)])
-HMMERAlphabet = Union[RNAAlphabet, DNAAlphabet, IUPACAminoAlphabet]
+
+LPROB_ZERO = lprob.zero()
 
 
 class HMMERModel:
@@ -26,16 +26,12 @@ class HMMERModel:
 
     def __init__(self, hmmer_model: hmmer_reader.HMMERModel):
         symbols: str = hmmer_model.alphabet
-        alphabet = infer_alphabet(symbols.encode())
+        self._alphabet = infer_alphabet(symbols)
 
-        if alphabet is None:
-            raise ValueError("Could not infer alphabet from HMMER model.")
-        self._alphabet = alphabet
-
-        if isinstance(self._alphabet, IUPACAminoAlphabet):
+        if isinstance(self._alphabet, AminoAlphabet):
             self._null_lprobs = _null_amino_lprobs(symbols)
         else:
-            k = alphabet.length
+            k = len(self._alphabet.symbols)
             self._null_lprobs = [log(1 / k)] * k
 
         self._match_lprobs = [
@@ -67,7 +63,7 @@ class HMMERModel:
         return self._model_length
 
     @property
-    def alphabet(self) -> HMMERAlphabet:
+    def alphabet(self):
         return self._alphabet
 
     @property
@@ -81,8 +77,8 @@ class HMMERModel:
         return self._insert_lprobs[m - 1]
 
     def _sort(self, lprobs: Mapping[str, float]) -> List[float]:
-        symbols = self._alphabet.symbols.decode()
-        return [lprobs.get(sym, lprob_zero()) for sym in symbols]
+        symbols = self._alphabet.symbols
+        return [lprobs.get(sym, LPROB_ZERO) for sym in symbols]
 
 
 def _null_amino_lprobs(symbols: str):
@@ -112,4 +108,4 @@ def _null_amino_lprobs(symbols: str):
         "W": log(0.0114135),
         "Y": log(0.0304133),
     }
-    return [lprobs.get(sym, lprob_zero()) for sym in list(symbols)]
+    return [lprobs.get(sym, LPROB_ZERO) for sym in list(symbols)]
