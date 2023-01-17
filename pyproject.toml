@@ -14,7 +14,6 @@ include = [
   { path = "build_ext.py", format = "sdist" },
 ]
 
-
 [tool.poetry.dependencies]
 python = "^3.9"
 cffi = "*"
@@ -32,6 +31,9 @@ generate-setup-file = false
 [build-system]
 requires = ["poetry-core", "cffi", "cmake"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.cibuildwheel]
+skip = ["*i686"]
 
 [tool.cibuildwheel.linux]
 repair-wheel-command = """\
