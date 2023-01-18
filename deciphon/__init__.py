@@ -1,10 +1,7 @@
-from .press import Press
-
-__name__ = "deciphon"
-__version__ = "0.5.0"
+from .meta import __author__, __name__, __version__
 
 __all__ = [
     "__name__",
     "__version__",
-    "Press",
+    "__author__",
 ]

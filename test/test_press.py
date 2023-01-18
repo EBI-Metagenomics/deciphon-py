@@ -6,7 +6,7 @@ import pytest
 from blx.cid import CID
 from blx.download import download
 
-import deciphon
+from deciphon.press import Press
 
 
 @dataclass
@@ -26,7 +26,7 @@ def test_press(tmp_path: Path, minifam: File):
     os.chdir(tmp_path)
     download(minifam.cid, minifam.name, False)
     dcp = Path("minifam.dcp")
-    with deciphon.Press(minifam.name, dcp) as press:
+    with Press(minifam.name, dcp) as press:
         for _ in press:
             pass
     assert dcp.stat().st_size == 6711984
