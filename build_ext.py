@@ -32,7 +32,7 @@ DEPS = [
     Dependency("EBI-Metagenomics", "lip", "0.5.0", CMAKE_OPTS),
     Dependency("EBI-Metagenomics", "hmr", "0.6.0", CMAKE_OPTS),
     Dependency("EBI-Metagenomics", "imm", "2.1.10", CMAKE_OPTS + CPM_OPTS),
-    Dependency("EBI-Metagenomics", "deciphon", "0.3.3", CMAKE_OPTS + CPM_OPTS),
+    Dependency("EBI-Metagenomics", "deciphon", "0.3.6", CMAKE_OPTS + CPM_OPTS),
 ]
 
 
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     ffibuilder.set_source(
         "deciphon.cffi",
         """
-        #include "deciphon/press.h"
+        #include "deciphon/deciphon.h"
         """,
         language="c",
         libraries=["deciphon"],

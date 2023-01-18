@@ -1,0 +1,2 @@
+- Find an automatic way to set LD_LIBRARY_PATH on Linux and DYLD_LIBRARY_PATH on Mac
+for developers when testing it.

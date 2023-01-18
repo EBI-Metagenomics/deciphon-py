@@ -23,6 +23,7 @@ pytest = "^7.2.0"
 black = "^22.12.0"
 isort = "^5.11.4"
 pyright = "^1.1.288"
+blx = "^0.1.7"
 
 [tool.poetry.build]
 script = "build_ext.py"
