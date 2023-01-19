@@ -7,38 +7,42 @@ from dataclasses import dataclass
 from pathlib import Path
 from subprocess import check_call
 
+RPATH = "$ORIGIN" if sys.platform.startswith("linux") else "@loader_path"
+
 PWD = Path(os.path.dirname(os.path.abspath(__file__)))
-DST = PWD / ".ext_deps"
+TMP = PWD / ".build_ext"
+PKG = PWD / "deciphon"
+INTERFACE = PKG / "interface.h"
+
+LIB = str(Path(PKG) / "lib")
+INCL = str(Path(PKG) / "include")
+EXTRA = f"-Wl,-rpath,{RPATH}/lib"
+SHARE = str(Path(PKG) / "share")
 
 CMAKE_OPTS = [
-    "-DCMAKE_PREFIX_PATH=",
     "-DCMAKE_BUILD_TYPE=Release",
     "-DBUILD_SHARED_LIBS=ON",
+    f"-DCMAKE_INSTALL_RPATH={RPATH}",
 ]
 
 CPM_OPTS = ["-DCPM_USE_LOCAL_PACKAGES=ON"]
 
-EXTRA = {
-    "linux": ["-Wl,-rpath,$ORIGIN/../.ext_deps/lib"],
-    "macos": ["-Wl,-rpath,@loader_path/../.ext_deps/lib"],
-}
-
 
 @dataclass
-class Dependency:
+class Ext:
     user: str
     project: str
     version: str
     cmake_opts: list[str]
 
 
-DEPS = [
-    Dependency("horta", "logaddexp", "2.1.14", CMAKE_OPTS),
-    Dependency("horta", "elapsed", "3.1.2", CMAKE_OPTS),
-    Dependency("EBI-Metagenomics", "lip", "0.5.0", CMAKE_OPTS),
-    Dependency("EBI-Metagenomics", "hmr", "0.6.0", CMAKE_OPTS),
-    Dependency("EBI-Metagenomics", "imm", "2.1.10", CMAKE_OPTS + CPM_OPTS),
-    Dependency("EBI-Metagenomics", "deciphon", "0.3.6", CMAKE_OPTS + CPM_OPTS),
+EXTS = [
+    Ext("horta", "logaddexp", "2.1.14", CMAKE_OPTS),
+    Ext("horta", "elapsed", "3.1.2", CMAKE_OPTS),
+    Ext("EBI-Metagenomics", "lip", "0.5.0", CMAKE_OPTS),
+    Ext("EBI-Metagenomics", "hmr", "0.6.0", CMAKE_OPTS),
+    Ext("EBI-Metagenomics", "imm", "2.1.10", CMAKE_OPTS + CPM_OPTS),
+    Ext("EBI-Metagenomics", "deciphon", "0.3.6", CMAKE_OPTS + CPM_OPTS),
 ]
 
 
@@ -47,54 +51,27 @@ def rm(folder: Path, pattern: str):
         filename.unlink()
 
 
-def get_cmake_bin():
+def build_ext(ext: Ext):
     from cmake import CMAKE_BIN_DIR
 
-    bins = [str(v) for v in Path(CMAKE_BIN_DIR).glob("cmake*")]
-    return bins[0]
-
-
-def cleanup_intree_artifacts():
-    rm(PWD / "deciphon", "cffi.*")
-    rm(PWD / "deciphon", "*.o")
-    rm(PWD / "deciphon", "*.so")
-    rm(PWD / "deciphon", "*.dylib")
-
-
-def cleanup_ext_deps():
-    shutil.rmtree(DST, ignore_errors=True)
-
-
-def build_dep(dep: Dependency):
-    prj_dir = DST / f"{dep.project}-{dep.version}"
+    prj_dir = TMP / f"{ext.project}-{ext.version}"
     bld_dir = prj_dir / "build"
     os.makedirs(bld_dir, exist_ok=True)
 
-    url = f"https://github.com/{dep.user}/{dep.project}/archive/refs/tags/v{dep.version}.tar.gz"
+    url = f"https://github.com/{ext.user}/{ext.project}/archive/refs/tags/v{ext.version}.tar.gz"
 
-    with urllib.request.urlopen(url) as rf:
-        data = rf.read()
+    tar_filename = f"{ext.project}-{ext.version}.tar.gz"
 
-    tar_filename = f"{dep.project}-{dep.version}.tar.gz"
+    with open(TMP / tar_filename, "wb") as lf:
+        lf.write(urllib.request.urlopen(url).read())
 
-    with open(DST / tar_filename, "wb") as lf:
-        lf.write(data)
+    with tarfile.open(TMP / tar_filename) as tf:
+        tf.extractall(TMP)
 
-    with tarfile.open(DST / tar_filename) as tf:
-        tf.extractall(DST)
-
-    cmake = get_cmake_bin()
-    check_call([cmake, "-S", str(prj_dir), "-B", str(bld_dir)] + dep.cmake_opts)
+    cmake = [str(v) for v in Path(CMAKE_BIN_DIR).glob("cmake*")][0]
+    check_call([cmake, "-S", str(prj_dir), "-B", str(bld_dir)] + ext.cmake_opts)
     check_call([cmake, "--build", str(bld_dir), "--config", "Release"])
-    check_call([cmake, "--install", str(bld_dir), "--prefix", str(DST)])
-
-
-def osname() -> str:
-    if sys.platform.startswith("linux"):
-        return "linux"
-    if sys.platform.startswith("darwin"):
-        return "macos"
-    assert False
+    check_call([cmake, "--install", str(bld_dir), "--prefix", str(PKG)])
 
 
 if __name__ == "__main__":
@@ -102,19 +79,14 @@ if __name__ == "__main__":
 
     ffibuilder = FFI()
 
-    cleanup_intree_artifacts()
-    cleanup_ext_deps()
+    rm(PKG, "cffi.*")
+    rm(PKG / "lib", "**/lib*")
+    shutil.rmtree(TMP, ignore_errors=True)
 
-    for dep in DEPS:
-        build_dep(dep)
+    for ext in EXTS:
+        build_ext(ext)
 
-    library_dirs = [DST / "lib", DST / "lib64"]
-    include_dirs = [DST / "include"]
-
-    with open(PWD / "deciphon" / "interface.h", "r") as f:
-        interface_h = f.read()
-
-    ffibuilder.cdef(interface_h)
+    ffibuilder.cdef(open(INTERFACE, "r").read())
     ffibuilder.set_source(
         "deciphon.cffi",
         """
@@ -122,8 +94,17 @@ if __name__ == "__main__":
         """,
         language="c",
         libraries=["deciphon"],
-        library_dirs=[str(d) for d in library_dirs if d.exists()],
-        include_dirs=[str(d) for d in include_dirs if d.exists()],
-        extra_link_args=EXTRA[osname()],
+        library_dirs=[LIB],
+        include_dirs=[INCL],
+        extra_link_args=[EXTRA],
     )
     ffibuilder.compile(verbose=True)
+
+    shutil.rmtree(INCL, ignore_errors=True)
+    shutil.rmtree(SHARE, ignore_errors=True)
+    shutil.rmtree(Path(LIB) / "cmake", ignore_errors=True)
+
+    find = ["/usr/bin/find", LIB, "-type", "l"]
+    exec0 = ["-exec", "/bin/cp", "{}", "{}.tmp", ";"]
+    exec1 = ["-exec", "/bin/mv", "{}.tmp", "{}", ";"]
+    check_call(find + exec0 + exec1)

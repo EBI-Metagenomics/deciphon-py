@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deciphon"
-version = "0.5.1"
+version = "0.5.2"
 description = ""
 authors = ["Danilo Horta <danilo.horta@pm.me>"]
 license = "MIT"
@@ -8,6 +8,7 @@ readme = "README.md"
 include = [
   { path = "deciphon/*.so", format = "wheel" },
   { path = "deciphon/*.pyd", format = "wheel" },
+  { path = "deciphon/lib/lib*", format = "wheel" },
   { path = "build_ext.py", format = "sdist" },
 ]
 
