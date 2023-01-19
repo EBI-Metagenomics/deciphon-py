@@ -2,6 +2,9 @@ name: Deploy
 
 on: push
 
+env:
+  CIBW_PROJECT_REQUIRES_PYTHON: ">=3.9"
+
 jobs:
   make_sdist:
     name: Make SDist
