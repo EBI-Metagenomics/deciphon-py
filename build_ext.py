@@ -1,10 +1,11 @@
 import os
 import shutil
-import subprocess
+import sys
 import tarfile
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
+from subprocess import check_call
 
 PWD = Path(os.path.dirname(os.path.abspath(__file__)))
 DST = PWD / ".ext_deps"
@@ -16,6 +17,11 @@ CMAKE_OPTS = [
 ]
 
 CPM_OPTS = ["-DCPM_USE_LOCAL_PACKAGES=ON"]
+
+EXTRA = {
+    "linux": ["-Wl,-rpath,$ORIGIN/../.ext_deps/lib"],
+    "macos": ["-Wl,-rpath,@loader_path/../.ext_deps/lib"],
+}
 
 
 @dataclass
@@ -60,11 +66,9 @@ def cleanup_ext_deps():
 
 
 def build_dep(dep: Dependency):
-    ext_dir = DST
-
-    prj_dir = ext_dir / f"{dep.project}-{dep.version}"
-    build_dir = prj_dir / "build"
-    os.makedirs(build_dir, exist_ok=True)
+    prj_dir = DST / f"{dep.project}-{dep.version}"
+    bld_dir = prj_dir / "build"
+    os.makedirs(bld_dir, exist_ok=True)
 
     url = f"https://github.com/{dep.user}/{dep.project}/archive/refs/tags/v{dep.version}.tar.gz"
 
@@ -73,20 +77,24 @@ def build_dep(dep: Dependency):
 
     tar_filename = f"{dep.project}-{dep.version}.tar.gz"
 
-    with open(ext_dir / tar_filename, "wb") as lf:
+    with open(DST / tar_filename, "wb") as lf:
         lf.write(data)
 
-    with tarfile.open(ext_dir / tar_filename) as tf:
-        tf.extractall(ext_dir)
+    with tarfile.open(DST / tar_filename) as tf:
+        tf.extractall(DST)
 
-    cmake_bin = get_cmake_bin()
-    subprocess.check_call(
-        [cmake_bin, "-S", str(prj_dir), "-B", str(build_dir)] + dep.cmake_opts
-    )
-    subprocess.check_call([cmake_bin, "--build", str(build_dir), "--config", "Release"])
-    subprocess.check_call(
-        [cmake_bin, "--install", str(build_dir), "--prefix", str(ext_dir)]
-    )
+    cmake = get_cmake_bin()
+    check_call([cmake, "-S", str(prj_dir), "-B", str(bld_dir)] + dep.cmake_opts)
+    check_call([cmake, "--build", str(bld_dir), "--config", "Release"])
+    check_call([cmake, "--install", str(bld_dir), "--prefix", str(DST)])
+
+
+def osname() -> str:
+    if sys.platform.startswith("linux"):
+        return "linux"
+    if sys.platform.startswith("darwin"):
+        return "macos"
+    assert False
 
 
 if __name__ == "__main__":
@@ -116,5 +124,6 @@ if __name__ == "__main__":
         libraries=["deciphon"],
         library_dirs=[str(d) for d in library_dirs if d.exists()],
         include_dirs=[str(d) for d in include_dirs if d.exists()],
+        extra_link_args=EXTRA[osname()],
     )
     ffibuilder.compile(verbose=True)
