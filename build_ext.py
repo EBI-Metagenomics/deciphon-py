@@ -42,7 +42,7 @@ EXTS = [
     Ext("EBI-Metagenomics", "lip", "0.5.0", CMAKE_OPTS),
     Ext("EBI-Metagenomics", "hmr", "0.6.0", CMAKE_OPTS),
     Ext("EBI-Metagenomics", "imm", "2.1.10", CMAKE_OPTS + CPM_OPTS),
-    Ext("EBI-Metagenomics", "deciphon", "0.3.6", CMAKE_OPTS + CPM_OPTS),
+    Ext("EBI-Metagenomics", "deciphon", "0.4.1", CMAKE_OPTS + CPM_OPTS),
 ]
 
 

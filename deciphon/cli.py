@@ -5,10 +5,11 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-from blx.meta import __version__
 from rich.progress import track
 
+from deciphon.meta import __version__
 from deciphon.press import Press
+from deciphon.scan import Scan
 from deciphon.service_exit import ServiceExit, register_service_exit
 
 __all__ = ["app"]
@@ -40,11 +41,28 @@ def press(hmm: Path, progress: bool = PROGRESS_OPTION):
     """
     register_service_exit()
 
+    db = Path(hmm.stem + ".dcp")
     try:
-        dcp = Path(hmm.stem + ".dcp")
-        with Press(hmm, dcp) as press:
+        with Press(hmm, db) as press:
             for _ in track(press, "Press", disable=not progress):
                 pass
+    except ServiceExit:
+        raise typer.Exit(EXIT_CODE.FAILURE)
+
+    raise typer.Exit(EXIT_CODE.SUCCESS)
+
+
+@app.command()
+def scan(hmm: Path, seq: Path, prod: Path, progress: bool = PROGRESS_OPTION):
+    """
+    Scan sequences.
+    """
+    register_service_exit()
+    del progress
+
+    try:
+        with Scan(hmm, seq) as scan:
+            scan.run(prod)
     except ServiceExit:
         raise typer.Exit(EXIT_CODE.FAILURE)
 
