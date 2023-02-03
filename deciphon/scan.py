@@ -11,7 +11,7 @@ __all__ = ["Scan"]
 
 class Scan:
     def __init__(self, hmm: str | PathLike[str], seq: str | PathLike[str]):
-        self._cscan = lib.dcp_scan_new()
+        self._cscan = lib.dcp_scan_new(0)
         if self._cscan == ffi.NULL:
             raise MemoryError()
 

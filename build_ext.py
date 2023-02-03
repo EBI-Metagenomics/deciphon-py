@@ -14,6 +14,7 @@ TMP = PWD / ".build_ext"
 PKG = PWD / "deciphon"
 INTERFACE = PKG / "interface.h"
 
+BIN = str(Path(PKG) / "bin")
 LIB = str(Path(PKG) / "lib")
 INCL = str(Path(PKG) / "include")
 EXTRA = f"-Wl,-rpath,{RPATH}/lib"
@@ -26,6 +27,8 @@ CMAKE_OPTS = [
 ]
 
 CPM_OPTS = ["-DCPM_USE_LOCAL_PACKAGES=ON"]
+
+NNG_OPTS = ["-DNNG_TESTS=OFF", "-DNNG_TOOLS=OFF", "-DNNG_ENABLE_NNGCAT=OFF"]
 
 
 @dataclass
@@ -42,7 +45,9 @@ EXTS = [
     Ext("EBI-Metagenomics", "lip", "0.5.0", CMAKE_OPTS),
     Ext("EBI-Metagenomics", "hmr", "0.6.0", CMAKE_OPTS),
     Ext("EBI-Metagenomics", "imm", "2.1.10", CMAKE_OPTS + CPM_OPTS),
-    Ext("EBI-Metagenomics", "deciphon", "0.4.1", CMAKE_OPTS + CPM_OPTS),
+    Ext("nanomsg", "nng", "1.5.2", CMAKE_OPTS + NNG_OPTS),
+    Ext("EBI-Metagenomics", "h3client", "0.10.4", CMAKE_OPTS + CPM_OPTS),
+    Ext("EBI-Metagenomics", "deciphon", "0.4.4", CMAKE_OPTS + CPM_OPTS),
 ]
 
 
@@ -100,6 +105,7 @@ if __name__ == "__main__":
     )
     ffibuilder.compile(verbose=True)
 
+    shutil.rmtree(BIN, ignore_errors=True)
     shutil.rmtree(INCL, ignore_errors=True)
     shutil.rmtree(SHARE, ignore_errors=True)
     shutil.rmtree(Path(LIB) / "cmake", ignore_errors=True)

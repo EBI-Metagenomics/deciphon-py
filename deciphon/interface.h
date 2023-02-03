@@ -9,7 +9,7 @@ bool dcp_press_end(struct dcp_press const *);
 int dcp_press_close(struct dcp_press *);
 void dcp_press_del(struct dcp_press const *);
 
-struct dcp_scan *dcp_scan_new(void);
+struct dcp_scan *dcp_scan_new(int port);
 void dcp_scan_del(struct dcp_scan const *);
 
 int dcp_scan_set_nthreads(struct dcp_scan *, int nthreads);
