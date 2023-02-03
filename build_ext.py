@@ -16,6 +16,7 @@ INTERFACE = PKG / "interface.h"
 
 BIN = Path(PKG) / "bin"
 LIB = Path(PKG) / "lib"
+LIB64 = Path(PKG) / "lib64"
 INCL = Path(PKG) / "include"
 EXTRA = f"-Wl,-rpath,{RPATH}/lib"
 SHARE = Path(PKG) / "share"
@@ -105,14 +106,23 @@ if __name__ == "__main__":
     )
     ffibuilder.compile(verbose=True)
 
+    for file in LIB64.glob("lib*"):
+        shutil.move(file, LIB / file.name)
+
     shutil.rmtree(BIN, ignore_errors=True)
     shutil.rmtree(INCL, ignore_errors=True)
     shutil.rmtree(SHARE, ignore_errors=True)
     shutil.rmtree(LIB / "cmake", ignore_errors=True)
+    shutil.rmtree(LIB64, ignore_errors=True)
 
     if sys.platform == "linux":
+        patch = ["patchelf", "--set-rpath", "$ORIGIN"]
         for lib in LIB.glob("*.so*"):
-            check_call(["patchelf", "--set-rpath", "'$ORIGIN'", str(lib)])
+            check_call(patch + [str(lib)])
+    elif sys.platform == "darwin":
+        patch = ["install_name_tool", "-rpath", "/usr/local/lib", "@loader_path"]
+        for lib in LIB.glob("libnng*"):
+            check_call(patch + [str(lib)])
 
     find = ["/usr/bin/find", str(LIB), "-type", "l"]
     exec0 = ["-exec", "/bin/cp", "{}", "{}.tmp", ";"]
