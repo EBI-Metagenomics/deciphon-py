@@ -30,7 +30,7 @@ script = "build_ext.py"
 generate-setup-file = false
 
 [build-system]
-requires = ["poetry-core", "cffi", "cmake"]
+requires = ["poetry-core", "cffi", "cmake", "patchelf;sys_platform=='linux'"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]

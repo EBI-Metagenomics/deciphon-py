@@ -14,11 +14,11 @@ TMP = PWD / ".build_ext"
 PKG = PWD / "deciphon"
 INTERFACE = PKG / "interface.h"
 
-BIN = str(Path(PKG) / "bin")
-LIB = str(Path(PKG) / "lib")
-INCL = str(Path(PKG) / "include")
+BIN = Path(PKG) / "bin"
+LIB = Path(PKG) / "lib"
+INCL = Path(PKG) / "include"
 EXTRA = f"-Wl,-rpath,{RPATH}/lib"
-SHARE = str(Path(PKG) / "share")
+SHARE = Path(PKG) / "share"
 
 CMAKE_OPTS = [
     "-DCMAKE_BUILD_TYPE=Release",
@@ -99,18 +99,22 @@ if __name__ == "__main__":
         """,
         language="c",
         libraries=["deciphon"],
-        library_dirs=[LIB],
-        include_dirs=[INCL],
-        extra_link_args=[EXTRA],
+        library_dirs=[str(LIB)],
+        include_dirs=[str(INCL)],
+        extra_link_args=[str(EXTRA)],
     )
     ffibuilder.compile(verbose=True)
 
     shutil.rmtree(BIN, ignore_errors=True)
     shutil.rmtree(INCL, ignore_errors=True)
     shutil.rmtree(SHARE, ignore_errors=True)
-    shutil.rmtree(Path(LIB) / "cmake", ignore_errors=True)
+    shutil.rmtree(LIB / "cmake", ignore_errors=True)
 
-    find = ["/usr/bin/find", LIB, "-type", "l"]
+    if sys.platform == "linux":
+        for lib in LIB.glob("*.so*"):
+            check_call(["patchelf", "--set-rpath", "'$ORIGIN'", str(lib)])
+
+    find = ["/usr/bin/find", str(LIB), "-type", "l"]
     exec0 = ["-exec", "/bin/cp", "{}", "{}.tmp", ";"]
     exec1 = ["-exec", "/bin/mv", "{}.tmp", "{}", ";"]
     check_call(find + exec0 + exec1)
