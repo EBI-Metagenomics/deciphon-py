@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import sys
 import tarfile
@@ -16,7 +17,6 @@ INTERFACE = PKG / "interface.h"
 
 BIN = Path(PKG) / "bin"
 LIB = Path(PKG) / "lib"
-LIB64 = Path(PKG) / "lib64"
 INCL = Path(PKG) / "include"
 EXTRA = f"-Wl,-rpath,{RPATH}/lib"
 SHARE = Path(PKG) / "share"
@@ -25,6 +25,7 @@ CMAKE_OPTS = [
     "-DCMAKE_BUILD_TYPE=Release",
     "-DBUILD_SHARED_LIBS=ON",
     f"-DCMAKE_INSTALL_RPATH={RPATH}",
+    "-DCMAKE_INSTALL_LIBDIR=lib",
 ]
 
 CPM_OPTS = ["-DCPM_USE_LOCAL_PACKAGES=ON"]
@@ -76,7 +77,9 @@ def build_ext(ext: Ext):
 
     cmake = [str(v) for v in Path(CMAKE_BIN_DIR).glob("cmake*")][0]
     check_call([cmake, "-S", str(prj_dir), "-B", str(bld_dir)] + ext.cmake_opts)
-    check_call([cmake, "--build", str(bld_dir), "--config", "Release"])
+    n = os.cpu_count()
+    check_call([cmake, "--build", str(bld_dir), "-j", str(n), "--config", "Release"])
+
     check_call([cmake, "--install", str(bld_dir), "--prefix", str(PKG)])
 
 
@@ -106,14 +109,10 @@ if __name__ == "__main__":
     )
     ffibuilder.compile(verbose=True)
 
-    for file in LIB64.glob("lib*"):
-        shutil.move(file, LIB / file.name)
-
     shutil.rmtree(BIN, ignore_errors=True)
     shutil.rmtree(INCL, ignore_errors=True)
     shutil.rmtree(SHARE, ignore_errors=True)
     shutil.rmtree(LIB / "cmake", ignore_errors=True)
-    shutil.rmtree(LIB64, ignore_errors=True)
 
     if sys.platform == "linux":
         patch = ["patchelf", "--set-rpath", "$ORIGIN"]
@@ -128,3 +127,10 @@ if __name__ == "__main__":
     exec0 = ["-exec", "/bin/cp", "{}", "{}.tmp", ";"]
     exec1 = ["-exec", "/bin/mv", "{}.tmp", "{}", ";"]
     check_call(find + exec0 + exec1)
+
+    for x in list(LIB.iterdir()):
+        linux_pattern = r"lib[^.]*\.so\.[0-9]+"
+        macos_pattern = r"lib[^.]*\.[0-9]+\.dylib"
+        pattern = r"^(" + linux_pattern + r"|" + macos_pattern + r")$"
+        if not re.match(pattern, x.name):
+            x.unlink()
