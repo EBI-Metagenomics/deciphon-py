@@ -119,9 +119,10 @@ if __name__ == "__main__":
         for lib in LIB.glob("*.so*"):
             check_call(patch + [str(lib)])
     elif sys.platform == "darwin":
-        patch = ["install_name_tool", "-rpath", "/usr/local/lib", "@loader_path"]
+        # TODO: Inspect rpaths from dylib before trying to change it
+        # patch = ["install_name_tool", "-rpath", "/usr/local/lib", "@loader_path"]
         for lib in LIB.glob("libnng*"):
-            check_call(patch + [str(lib)])
+            check_call(["install_name_tool", "-add_rpath", "@loader_path", str(lib)])
 
     find = ["/usr/bin/find", str(LIB), "-type", "l"]
     exec0 = ["-exec", "/bin/cp", "{}", "{}.tmp", ";"]

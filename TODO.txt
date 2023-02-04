@@ -1,1 +1,1 @@
-- Remove [project] from pyproject.toml
+- Inspect rpaths from dylib before trying to change it
