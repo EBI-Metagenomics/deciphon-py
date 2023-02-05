@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import importlib.metadata
 from enum import IntEnum
 from pathlib import Path
 from typing import Optional
@@ -7,7 +8,6 @@ from typing import Optional
 import typer
 from rich.progress import track
 
-from deciphon.meta import __version__
 from deciphon.press import Press
 from deciphon.scan import Scan
 from deciphon.service_exit import ServiceExit, register_service_exit
@@ -30,7 +30,7 @@ PROGRESS_OPTION = typer.Option(
 @app.callback(invoke_without_command=True)
 def cli(version: Optional[bool] = typer.Option(None, "--version", is_eager=True)):
     if version:
-        print(__version__)
+        typer.echo(importlib.metadata.version(__package__))
         raise typer.Exit()
 
 
