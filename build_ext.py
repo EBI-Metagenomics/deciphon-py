@@ -65,7 +65,10 @@ def build_ext(ext: Ext):
     bld_dir = prj_dir / "build"
     os.makedirs(bld_dir, exist_ok=True)
 
-    url = f"https://github.com/{ext.user}/{ext.project}/archive/refs/tags/v{ext.version}.tar.gz"
+    url = (
+        f"https://github.com/{ext.user}/{ext.project}"
+        f"/archive/refs/tags/v{ext.version}.tar.gz"
+    )
 
     tar_filename = f"{ext.project}-{ext.version}.tar.gz"
 
