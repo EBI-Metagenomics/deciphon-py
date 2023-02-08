@@ -31,7 +31,7 @@ def cli(version: Optional[bool] = typer.Option(None, "--version", is_eager=True)
 @app.command()
 def press(hmm: Path, progress: bool = PROGRESS_OPTION):
     """
-    Press HMM into DCP.
+    Press HMM ASCII file into a Deciphon database one.
     """
     register_service_exit()
 
@@ -54,7 +54,7 @@ def scan(
     ),
 ):
     """
-    Scan sequences.
+    Annotate nucleotide sequences into proteins a protein database.
     """
     register_service_exit()
     del progress
