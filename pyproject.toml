@@ -24,6 +24,3 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 dcp = 'deciphon.cli:app'
-
-[tool.cibuildwheel]
-skip = ["*i686"]
