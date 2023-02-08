@@ -1,23 +1,17 @@
 from __future__ import annotations
 
 import importlib.metadata
-from enum import IntEnum
 from pathlib import Path
 from typing import Optional
 
 import typer
 from rich.progress import track
 
-from deciphon.press import Press
-from deciphon.scan import Scan
+from deciphon_core.press import Press
+import deciphon.scan
 from deciphon.service_exit import ServiceExit, register_service_exit
 
 __all__ = ["app"]
-
-
-class EXIT_CODE(IntEnum):
-    SUCCESS = 0
-    FAILURE = 1
 
 
 app = typer.Typer(add_completion=False)
@@ -47,13 +41,18 @@ def press(hmm: Path, progress: bool = PROGRESS_OPTION):
             for _ in track(press, "Press", disable=not progress):
                 pass
     except ServiceExit:
-        raise typer.Exit(EXIT_CODE.FAILURE)
-
-    raise typer.Exit(EXIT_CODE.SUCCESS)
+        raise typer.Exit(1)
 
 
 @app.command()
-def scan(hmm: Path, seq: Path, prod: Path, progress: bool = PROGRESS_OPTION):
+def scan(
+    hmm: Path,
+    seq: Path,
+    progress: bool = PROGRESS_OPTION,
+    force: bool = typer.Option(
+        False, "--force", help="Remove output directory if necessary."
+    ),
+):
     """
     Scan sequences.
     """
@@ -61,9 +60,6 @@ def scan(hmm: Path, seq: Path, prod: Path, progress: bool = PROGRESS_OPTION):
     del progress
 
     try:
-        with Scan(hmm, seq) as scan:
-            scan.run(prod)
+        deciphon.scan.scan(hmm, seq, force)
     except ServiceExit:
-        raise typer.Exit(EXIT_CODE.FAILURE)
-
-    raise typer.Exit(EXIT_CODE.SUCCESS)
+        raise typer.Exit(1)
