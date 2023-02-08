@@ -55,8 +55,8 @@ pipx install deciphon
 ## Usage
 
 ```
- Usage: dcp [OPTIONS] COMMAND [ARGS]...                                                                                                  
-                                                                                                                                         
+ Usage: dcp [OPTIONS] COMMAND [ARGS]...
+
 ╭─ Options ────────────────────────────────────────────────────────────────────╮
 │ --version                                                                    │
 │ --help             Show this message and exit.                               │
