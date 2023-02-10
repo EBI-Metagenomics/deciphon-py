@@ -24,28 +24,32 @@ def on_message(client, topic, payload, qos, properties):
     del topic
     del qos
     del properties
-    print("On MESSAGE")
+
     hmm = HMM.parse_obj(API().read_hmm(int(payload)))
-    print(hmm)
+    print(f"Received: {hmm}")
+
     storage_get(CID(hmm.sha256), Path(hmm.filename))
 
     db = Path(Path(hmm.filename).stem + ".dcp")
+    print(f"Pressing: {hmm.filename}")
     with Press(hmm.filename, db) as press:
         for _ in press:
             pass
 
-    print("Finished pressing")
     cid = CID.from_file(db, Progress(desc="tmp"))
+
+    print(f"Publishing: {db}")
     storage_put(cid, db)
     API().create_db(db)
+    print(f"Finished: {db}")
 
 
 def on_disconnect(*_):
-    print("Disconnected")
+    print("disconnected")
 
 
 def on_subscribe(*_):
-    print("SUBSCRIBED")
+    print("subscribed")
 
 
 def ask_exit(*_):
@@ -70,7 +74,3 @@ async def pressd():
         await STOP.wait()
     finally:
         await client.disconnect()
-
-
-if __name__ == "__main__":
-    asyncio.run(pressd())

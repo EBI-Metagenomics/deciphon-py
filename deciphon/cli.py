@@ -1,15 +1,17 @@
 from __future__ import annotations
 
+import asyncio
 import importlib.metadata
 from pathlib import Path
 from typing import Optional
 
 import typer
+from deciphon_core.press import Press
 from rich.progress import track
 
-from deciphon_core.press import Press
-import deciphon.scan
 import deciphon.cli_api
+import deciphon.pressd
+import deciphon.scan
 from deciphon.service_exit import ServiceExit, register_service_exit
 
 __all__ = ["app"]
@@ -64,6 +66,17 @@ def scan(
         deciphon.scan.scan(hmm, seq, force)
     except ServiceExit:
         raise typer.Exit(1)
+
+
+@app.command()
+def start(daemon: str):
+    """
+    Start `pressd` or `scand` daemons.
+    """
+    register_service_exit()
+
+    if daemon == "pressd":
+        asyncio.run(deciphon.pressd.pressd())
 
 
 app.add_typer(deciphon.cli_api.app, name="api")

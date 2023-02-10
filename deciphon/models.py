@@ -15,14 +15,35 @@ class HMMCreate(BaseModel):
     filename: str
 
 
+class DB(BaseModel):
+    id: int
+    filename: str
+    sha256: str
+    hmm_id: int
+
+
 class DBCreate(BaseModel):
     sha256: str
     filename: str
 
 
+class Seq(BaseModel):
+    id: int
+    name: str
+    data: str
+
+
 class SeqCreate(BaseModel):
     name: str
     data: str
+
+
+class Scan(BaseModel):
+    id: int
+    multi_hits: bool
+    hmmer3_compat: bool
+    db_id: int
+    seqs: List[Seq]
 
 
 class ScanCreate(BaseModel):
