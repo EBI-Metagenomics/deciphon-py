@@ -9,6 +9,7 @@ from rich.progress import track
 
 from deciphon_core.press import Press
 import deciphon.scan
+import deciphon.cli_api
 from deciphon.service_exit import ServiceExit, register_service_exit
 
 __all__ = ["app"]
@@ -63,3 +64,6 @@ def scan(
         deciphon.scan.scan(hmm, seq, force)
     except ServiceExit:
         raise typer.Exit(1)
+
+
+app.add_typer(deciphon.cli_api.app, name="api")
