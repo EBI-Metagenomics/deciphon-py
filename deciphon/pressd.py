@@ -2,12 +2,10 @@ import asyncio
 import signal
 from pathlib import Path
 
-from blx.cid import CID
-from blx.progress import Progress
 from deciphon_core.press import Press
 from gmqtt import Client as MQTTClient
 
-from deciphon.api import API
+from deciphon.api import get_api
 from deciphon.config import get_config
 from deciphon.models import HMM
 from deciphon.storage import storage_get, storage_put
@@ -25,10 +23,10 @@ def on_message(client, topic, payload, qos, properties):
     del qos
     del properties
 
-    hmm = HMM.parse_obj(API().read_hmm(int(payload)))
+    hmm = HMM.parse_raw(get_api().read_hmm(int(payload)))
     print(f"Received: {hmm}")
 
-    storage_get(CID(hmm.sha256), Path(hmm.filename))
+    storage_get(hmm.sha256, Path(hmm.filename))
 
     db = Path(Path(hmm.filename).stem + ".dcp")
     print(f"Pressing: {hmm.filename}")
@@ -36,11 +34,9 @@ def on_message(client, topic, payload, qos, properties):
         for _ in press:
             pass
 
-    cid = CID.from_file(db, Progress(desc="tmp"))
-
     print(f"Publishing: {db}")
-    storage_put(cid, db)
-    API().create_db(db)
+    storage_put(db)
+    get_api().create_db(db)
     print(f"Finished: {db}")
 
 

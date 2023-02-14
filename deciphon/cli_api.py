@@ -86,4 +86,24 @@ def read_snap(scan_id: int):
 
 @app.command()
 def read_gff(scan_id: int):
-    typer.echo(get_api().read_gff(scan_id))
+    typer.echo(get_api().read_gff(scan_id), nl=False)
+
+
+@app.command()
+def read_codon(scan_id: int):
+    typer.echo(get_api().read_codon(scan_id), nl=False)
+
+
+@app.command()
+def read_amino(scan_id: int):
+    typer.echo(get_api().read_amino(scan_id), nl=False)
+
+
+@app.command()
+def read_state(scan_id: int):
+    typer.echo(get_api().read_state(scan_id), nl=False)
+
+
+@app.command()
+def read_query(scan_id: int):
+    typer.echo(get_api().read_query(scan_id), nl=False)

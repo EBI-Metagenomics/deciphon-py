@@ -109,6 +109,26 @@ class API:
         r.raise_for_status()
         return r.text
 
+    def read_codon(self, scan_id: int):
+        r = requests.get(self.root + f"/scans/{scan_id}/codon")
+        r.raise_for_status()
+        return r.text
+
+    def read_amino(self, scan_id: int):
+        r = requests.get(self.root + f"/scans/{scan_id}/amino")
+        r.raise_for_status()
+        return r.text
+
+    def read_state(self, scan_id: int):
+        r = requests.get(self.root + f"/scans/{scan_id}/state")
+        r.raise_for_status()
+        return r.text
+
+    def read_query(self, scan_id: int):
+        r = requests.get(self.root + f"/scans/{scan_id}/query")
+        r.raise_for_status()
+        return r.text
+
 
 @lru_cache
 def get_api() -> API:

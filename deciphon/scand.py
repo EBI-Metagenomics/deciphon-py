@@ -5,17 +5,16 @@ import shutil
 import signal
 from pathlib import Path
 
-from blx.cid import CID
 from deciphon_core.scan import Scan as ScanCore
 from gmqtt import Client as MQTTClient
 from h3daemon.hmmfile import HMMFile
 from h3daemon.hmmpress import hmmpress
 from h3daemon.manager import H3Manager
 
-from deciphon.api import API
+from deciphon.api import get_api
 from deciphon.config import get_config
 from deciphon.models import DB, Scan
-from deciphon.storage import storage_get
+from deciphon.storage import storage_get, storage_put
 
 STOP = asyncio.Event()
 
@@ -29,26 +28,31 @@ def on_message(client, topic, payload, qos, properties):
     del topic
     del qos
     del properties
-    print("On MESSAGE")
-    scan = Scan.parse_obj(API().read_scan(int(payload)))
-    db = DB.parse_obj(API().read_db(scan.db_id))
+
+    scan = Scan.parse_raw(get_api().read_scan(int(payload)))
+    print(f"Received: {scan}")
+
+    db = DB.parse_raw(get_api().read_db(scan.db_id))
+    print(f"Using: {db}")
 
     scan_seqs = scan.dict()["seqs"]
     for i in scan_seqs:
         i["scan_id"] = scan.id
 
-    seqs_tmp = Path("seqs_tmp.json")
+    seqs_tmp = Path("snap.json")
     with open(seqs_tmp, "w", encoding="utf-8") as fp:
         json.dump(scan_seqs, fp, ensure_ascii=True)
 
     force = True
 
-    storage_get(CID(db.sha256), Path(db.filename))
+    print(f"Fetching: {db.filename}")
+    storage_get(db.sha256, Path(db.filename))
     dbfile = Path(db.filename)
 
     hmmfile = Path(dbfile.stem + ".hmm")
     hmmfiled = HMMFile(hmmfile)
     with H3Manager() as h3:
+        print(f"Pressing: {hmmfile}")
         hmmpress(hmmfiled)
         pod = h3.start_daemon(hmmfiled, force=True)
         with ScanCore(hmmfile, seqs_tmp, pod.host_port) as x:
@@ -58,17 +62,23 @@ def on_message(client, topic, payload, qos, properties):
 
                 if Path(x.base_name).exists():
                     shutil.rmtree(x.base_name)
+            print(f"Scanning: {seqs_tmp}")
             x.run()
+        pod.stop()
 
-    # db = Path(Path(hmm.filename).stem + ".dcp")
+    snap = seqs_tmp.stem + ".dcs"
+    print(f"Publishing: {snap}")
+    storage_put(Path(snap))
+    get_api().create_snap(scan.id, Path(snap))
+    print("Finished: " + seqs_tmp.stem + ".dcs")
 
 
 def on_disconnect(*_):
-    print("Disconnected")
+    print("disconnected")
 
 
 def on_subscribe(*_):
-    print("SUBSCRIBED")
+    print("subscribed")
 
 
 def ask_exit(*_):
@@ -93,7 +103,3 @@ async def scand():
         await STOP.wait()
     finally:
         await client.disconnect()
-
-
-if __name__ == "__main__":
-    asyncio.run(scand())
