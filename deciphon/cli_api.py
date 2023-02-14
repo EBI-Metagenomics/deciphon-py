@@ -5,11 +5,16 @@ from typing import List
 
 import typer
 from pydantic import parse_file_as
+from rich import print_json
 
 from deciphon.api import get_api
 from deciphon.models import ScanCreate, SeqCreate
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer(
+    add_completion=True,
+    pretty_exceptions_short=True,
+    pretty_exceptions_show_locals=False,
+)
 
 
 @app.command()
@@ -19,12 +24,12 @@ def create_hmm(hmm: Path):
 
 @app.command()
 def read_hmm(hmm_id: int):
-    print(get_api().read_hmm(hmm_id))
+    print_json(get_api().read_hmm(hmm_id))
 
 
 @app.command()
 def read_hmms():
-    print(get_api().read_hmms())
+    print_json(get_api().read_hmms())
 
 
 @app.command()
@@ -34,12 +39,12 @@ def create_db(db: Path):
 
 @app.command()
 def read_db(db_id: int):
-    print(get_api().read_db(db_id))
+    print_json(get_api().read_db(db_id))
 
 
 @app.command()
 def read_dbs():
-    print(get_api().read_dbs())
+    print_json(get_api().read_dbs())
 
 
 @app.command()
@@ -51,19 +56,34 @@ def create_scan(db_id: int, seqs: Path):
 
 @app.command()
 def read_scan(scan_id: int):
-    print(get_api().read_scan(scan_id))
+    print_json(get_api().read_scan(scan_id))
 
 
 @app.command()
 def read_scans():
-    print(get_api().read_scans())
+    print_json(get_api().read_scans())
 
 
 @app.command()
 def read_job(job_id: int):
-    print(get_api().read_job(job_id))
+    print_json(get_api().read_job(job_id))
 
 
 @app.command()
 def read_jobs():
-    print(get_api().read_jobs())
+    print_json(get_api().read_jobs())
+
+
+@app.command()
+def create_snap(scan_id: int, snap: Path):
+    get_api().create_snap(scan_id, snap)
+
+
+@app.command()
+def read_snap(scan_id: int):
+    print_json(get_api().read_snap(scan_id))
+
+
+@app.command()
+def read_gff(scan_id: int):
+    typer.echo(get_api().read_gff(scan_id))

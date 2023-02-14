@@ -12,12 +12,17 @@ from rich.progress import track
 import deciphon.cli_api
 import deciphon.pressd
 import deciphon.scan
+import deciphon.scand
 from deciphon.service_exit import ServiceExit, register_service_exit
 
 __all__ = ["app"]
 
 
-app = typer.Typer(add_completion=False)
+app = typer.Typer(
+    add_completion=True,
+    pretty_exceptions_short=True,
+    pretty_exceptions_show_locals=False,
+)
 
 PROGRESS_OPTION = typer.Option(
     True, "--progress/--no-progress", help="Display progress bar."
@@ -77,6 +82,8 @@ def start(daemon: str):
 
     if daemon == "pressd":
         asyncio.run(deciphon.pressd.pressd())
+    if daemon == "scand":
+        asyncio.run(deciphon.scand.scand())
 
 
 app.add_typer(deciphon.cli_api.app, name="api")

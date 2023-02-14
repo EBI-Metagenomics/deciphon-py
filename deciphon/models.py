@@ -51,3 +51,8 @@ class ScanCreate(BaseModel):
     hmmer3_compat: bool
     db_id: int
     seqs: List[SeqCreate]
+
+
+class SnapCreate(BaseModel):
+    sha256: str
+    filename: str
