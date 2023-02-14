@@ -107,3 +107,8 @@ def read_state(scan_id: int):
 @app.command()
 def read_query(scan_id: int):
     typer.echo(get_api().read_query(scan_id), nl=False)
+
+
+@app.command()
+def read_align(scan_id: int):
+    typer.echo(get_api().read_align(scan_id), nl=False)

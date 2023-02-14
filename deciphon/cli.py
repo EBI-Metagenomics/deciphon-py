@@ -7,6 +7,7 @@ from typing import Optional
 
 import typer
 from deciphon_core.press import Press
+from deciphon_core.h3result import H3Result
 from rich.progress import track
 
 import deciphon.cli_api
@@ -69,6 +70,24 @@ def scan(
 
     try:
         deciphon.scan.scan(hmm, seq, force)
+    except ServiceExit:
+        raise typer.Exit(1)
+
+
+@app.command()
+def see(snap: Path):
+    """
+    Display scan results stored in a snap file.
+    """
+    register_service_exit()
+
+    try:
+        h3r = H3Result(snap)
+        stream = typer.get_text_stream("stdout")
+        h3r.print_targets(stream)
+        h3r.print_targets_table(stream)
+        h3r.print_domains(stream)
+        h3r.print_domains_table(stream)
     except ServiceExit:
         raise typer.Exit(1)
 

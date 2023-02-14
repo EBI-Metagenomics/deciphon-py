@@ -129,6 +129,11 @@ class API:
         r.raise_for_status()
         return r.text
 
+    def read_align(self, scan_id: int):
+        r = requests.get(self.root + f"/scans/{scan_id}/align")
+        r.raise_for_status()
+        return r.text
+
 
 @lru_cache
 def get_api() -> API:
