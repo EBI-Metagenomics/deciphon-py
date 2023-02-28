@@ -1,24 +1,21 @@
-import os
 import shutil
 from pathlib import Path
+
 from deciphon_core.scan import Scan
-from h3daemon.manager import H3Manager
 from h3daemon.hmmfile import HMMFile
-from h3daemon.hmmpress import hmmpress
+from h3daemon.sched import SchedContext
 
 __all__ = ["scan"]
 
 
-def scan(hmm: Path, seq: Path, force=False):
-    hmmfile = HMMFile(hmm)
-    with H3Manager() as h3:
-        hmmpress(hmmfile)
-        pod = h3.start_daemon(hmmfile, force=True)
-        with Scan(hmm, seq, pod.host_port) as x:
+def scan(hmm: HMMFile, seq: Path, force=False):
+    hmm.ensure_pressed()
+    with SchedContext(hmm) as sched:
+        sched.is_ready(True)
+        port = sched.master.get_port()
+        with Scan(hmm.path, seq, port) as x:
             if force:
-                if Path(x.product_name).exists():
-                    os.unlink(x.product_name)
-
+                Path(x.product_name).unlink(True)
                 if Path(x.base_name).exists():
                     shutil.rmtree(x.base_name)
             x.run()
