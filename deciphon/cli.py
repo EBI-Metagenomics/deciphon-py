@@ -10,15 +10,15 @@ from deciphon_core.h3result import H3Result
 from typer import Exit, Option, Typer, echo
 
 import deciphon.cli_api
-import deciphon.press
 import deciphon.pressd
-import deciphon.scan
 import deciphon.scand
 from deciphon.hmmfile import HMMFile
 from deciphon.prodfile import ProdFile
 from deciphon.seqfile import SeqFile
 from deciphon.press import Press
+from deciphon.scan import Scan
 from deciphon.service_exit import service_exit
+from h3daemon.sched import SchedContext
 from rich.progress import track
 
 __all__ = ["app"]
@@ -70,9 +70,28 @@ def scan(
     """
     with service_exit():
         hmmfile = HMMFile(hmm)
+        if not hmmfile.dbfile.exists():
+            raise FileNotFoundError(f"{hmmfile.dbfile} does not exist.")
+
         seqfile = SeqFile(seq)
         prodfile = ProdFile(prod) if prod else ProdFile.from_seqfile(seqfile)
-        deciphon.scan.scan(hmmfile, seqfile, prodfile, force)
+
+        h3file = hmmfile.h3file
+        h3file.ensure_pressed()
+
+        if force:
+            prodfile.remove_all(True)
+        elif prodfile.path.exists():
+            raise RuntimeError(f"{prodfile.path} already exists.")
+        elif prodfile.basedir.exists():
+            raise RuntimeError(f"{prodfile.basedir} already exists.")
+
+        with SchedContext(hmmfile.h3file) as sched:
+            sched.is_ready(wait=True)
+            scan = Scan(hmmfile, seqfile, prodfile)
+            scan.port = sched.master.get_port()
+            with scan:
+                scan.run()
 
 
 @app.command()
