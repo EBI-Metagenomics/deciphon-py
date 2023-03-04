@@ -6,72 +6,73 @@ from pathlib import Path
 from typing import Optional
 
 import typer
-from deciphon_core.press import Press
 from deciphon_core.h3result import H3Result
-from rich.progress import track
+from typer import Exit, Option, Typer, echo
 
 import deciphon.cli_api
+import deciphon.press
 import deciphon.pressd
 import deciphon.scan
 import deciphon.scand
-from deciphon.service_exit import ServiceExit, register_service_exit
+from deciphon.hmmfile import HMMFile
+from deciphon.prodfile import ProdFile
+from deciphon.seqfile import SeqFile
+from deciphon.press import Press
+from deciphon.service_exit import service_exit
+from rich.progress import track
 
 __all__ = ["app"]
 
 
-app = typer.Typer(
+app = Typer(
     add_completion=True,
     pretty_exceptions_short=True,
     pretty_exceptions_show_locals=False,
 )
 
-PROGRESS_OPTION = typer.Option(
-    True, "--progress/--no-progress", help="Display progress bar."
-)
+O_PROGRESS = Option(True, "--progress/--no-progress", help="Display progress bar.")
+O_FORCE = Option(False, "--force")
 
 
 @app.callback(invoke_without_command=True)
-def cli(version: Optional[bool] = typer.Option(None, "--version", is_eager=True)):
+def cli(version: Optional[bool] = Option(None, "--version", is_eager=True)):
     if version:
-        typer.echo(importlib.metadata.version(__package__))
-        raise typer.Exit()
+        echo(importlib.metadata.version(__package__))
+        raise Exit(0)
 
 
 @app.command()
-def press(hmm: Path, progress: bool = PROGRESS_OPTION):
+def press(hmm: Path, force: bool = O_FORCE, progress: bool = O_PROGRESS):
     """
-    Press HMM ASCII file into a Deciphon database one.
+    Press HMM file.
     """
-    register_service_exit()
+    with service_exit():
+        hmmfile = HMMFile(hmm)
+        if force:
+            hmmfile.dbfile.unlink(True)
+        elif hmmfile.dbfile.exists():
+            raise RuntimeError(f"{hmmfile.dbfile} already exists.")
 
-    db = Path(hmm.stem + ".dcp")
-    try:
-        with Press(hmm, db) as press:
-            for _ in track(press, "Press", disable=not progress):
-                pass
-    except ServiceExit:
-        raise typer.Exit(1)
+        with Press(hmmfile) as press:
+            for x in track(press, "Pressing", disable=not progress):
+                x.press()
 
 
 @app.command()
 def scan(
     hmm: Path,
     seq: Path,
-    progress: bool = PROGRESS_OPTION,
-    force: bool = typer.Option(
-        False, "--force", help="Remove output directory if necessary."
-    ),
+    prod: Optional[Path] = None,
+    force: bool = O_FORCE,
 ):
     """
-    Annotate nucleotide sequences into proteins a protein database.
+    Scan nucleotide sequences.
     """
-    register_service_exit()
-    del progress
-
-    try:
-        deciphon.scan.scan(hmm, seq, force)
-    except ServiceExit:
-        raise typer.Exit(1)
+    with service_exit():
+        hmmfile = HMMFile(hmm)
+        seqfile = SeqFile(seq)
+        prodfile = ProdFile(prod) if prod else ProdFile.from_seqfile(seqfile)
+        deciphon.scan.scan(hmmfile, seqfile, prodfile, force)
 
 
 @app.command()
@@ -79,17 +80,13 @@ def see(snap: Path):
     """
     Display scan results stored in a snap file.
     """
-    register_service_exit()
-
-    try:
+    with service_exit():
         h3r = H3Result(snap)
         stream = typer.get_text_stream("stdout")
         h3r.print_targets(stream)
         h3r.print_targets_table(stream)
         h3r.print_domains(stream)
         h3r.print_domains_table(stream)
-    except ServiceExit:
-        raise typer.Exit(1)
 
 
 @app.command()
@@ -97,12 +94,11 @@ def start(daemon: str):
     """
     Start `pressd` or `scand` daemons.
     """
-    register_service_exit()
-
-    if daemon == "pressd":
-        asyncio.run(deciphon.pressd.pressd())
-    if daemon == "scand":
-        asyncio.run(deciphon.scand.scand())
+    with service_exit():
+        if daemon == "pressd":
+            asyncio.run(deciphon.pressd.pressd())
+        if daemon == "scand":
+            asyncio.run(deciphon.scand.scand())
 
 
 app.add_typer(deciphon.cli_api.app, name="api")
