@@ -1,35 +1,21 @@
 import os
-from dataclasses import dataclass
 from pathlib import Path
 
-import pytest
+from blx import BLXApp
 from blx.cid import CID
-from blx.download import download
 
-# from deciphon.press import Press
+from deciphon.hmmfile import HMMFile
+from deciphon.press import Press
 
-
-@dataclass
-class File:
-    cid: CID
-    name: str
+cid = CID(sha256hex="fe305d9c09e123f987f49b9056e34c374e085d8831f815cc73d8ea4cdec84960")
 
 
-@pytest.fixture
-def minifam():
-    cid = CID("fe305d9c09e123f987f49b9056e34c374e085d8831f815cc73d8ea4cdec84960")
-    name = "minifam.hmm"
-    return File(cid, name)
-
-
-def test_press(tmp_path: Path, minifam: File):
+def test_press(tmp_path: Path):
     os.chdir(tmp_path)
-    download(minifam.cid, minifam.name, False)
-    Path("minifam.dcp")
-    # dcp = Path("minifam.dcp")
-
-
-#     with Press(minifam.name, dcp) as press:
-#         for _ in press:
-#             pass
-#     assert dcp.stat().st_size == 6711984
+    BLXApp().get(cid, "minifam.hmm")
+    hmmfile = HMMFile(path=Path("minifam.hmm"))
+    with Press(hmmfile) as press:
+        for x in press:
+            x.press()
+    db = hmmfile.dbfile
+    assert db.path.stat().st_size == 6711984

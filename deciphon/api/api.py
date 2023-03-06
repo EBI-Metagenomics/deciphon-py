@@ -6,7 +6,6 @@ import requests
 
 from deciphon.config import get_config
 from deciphon.models import DBCreate, HMMCreate, ScanCreate, SnapCreate
-from deciphon.sha256 import sha256sum
 from deciphon.storage import storage_has, storage_put
 
 __all__ = ["API", "get_api"]
@@ -133,6 +132,12 @@ class API:
         r = requests.get(self.root + f"/scans/{scan_id}/align")
         r.raise_for_status()
         return r.text
+
+
+def sha256sum(filepath: Path):
+    del filepath
+    return ""
+    # return CID.from_file(filepath, progress=Progress("Hash")).hex()
 
 
 @lru_cache

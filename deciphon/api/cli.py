@@ -7,11 +7,13 @@ import typer
 from pydantic import parse_file_as
 from rich import print_json
 
-from deciphon.api import get_api
+from deciphon.api.api import get_api
 from deciphon.models import ScanCreate, SeqCreate
 
+__all__ = ["app"]
+
 app = typer.Typer(
-    add_completion=True,
+    add_completion=False,
     pretty_exceptions_short=True,
     pretty_exceptions_show_locals=False,
 )

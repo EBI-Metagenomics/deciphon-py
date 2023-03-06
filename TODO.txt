@@ -2,3 +2,5 @@
 - implement logging
 - normalize the .dcs .dcp extensions with the job idea of press/scan (hmm?/scan)
 - implement signal handling for the asyncio of daemons
+- `deciphon.hmmer_press` maybe a temporary solution? Solve this at `deciphon-core`
+instead?
