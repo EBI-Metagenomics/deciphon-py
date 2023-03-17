@@ -66,6 +66,7 @@ def scan(hmm: Path, seq: Path, snap: Optional[Path] = None):
             with H3Daemon(hmmfile) as daemon:
                 scan = Scan(hmmfile, seqfile, snapfile)
                 scan.port = daemon.port
+                scan.heuristic = True
                 with scan:
                     scan.run()
 

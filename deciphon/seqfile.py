@@ -10,8 +10,11 @@ from fasta_reader.reader import Reader as FASTAReader
 
 from deciphon.filepath import FilePath
 from deciphon.filetype import Filetype
+import time
 
 __all__ = ["SeqFile"]
+
+prev = None
 
 
 class SeqFile(SeqIter):
@@ -47,7 +50,16 @@ class SeqFile(SeqIter):
 
     def __next__(self):
         assert self._iter
+        global prev
+        if prev is None:
+            prev = time.time()
+        else:
+            curr = time.time()
+            elapsed = curr - prev
+            prev = curr
+            print(f"{elapsed}")
         seq = next(self._iter)
+        # print(seq.name)
         return seq
 
     def __iter__(self):
