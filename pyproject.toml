@@ -7,24 +7,24 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+blx = "*"
 cffi = "*"
-typer = { extras = ["all"], version = ">=0.7.0" }
-h3daemon = ">=0.12.0"
-gmqtt = ">=0.6.11"
-uvloop = ">=0.17.0"
-pydantic = ">=1.10.4"
-blx = ">=0.2.0"
-deciphon-core = ">=0.10.1"
-requests = ">=2.28.2"
-fasta-reader = ">=3.0.0"
-ijson = ">=3.1.0"
-hmmer = ">=0.2.3"
+deciphon-core = "*"
+fasta-reader = "*"
+gmqtt = "*"
+h3daemon = "*"
+hmmer = "*"
+ijson = "*"
+pydantic = "*"
+python = "^3.10"
+requests = "*"
+typer = { extras = ["all"], version = "*" }
+uvloop = "*"
 
 [tool.poetry.group.dev.dependencies]
-pytest = ">=7.2.0"
-blx = ">=0.2.0"
-pre-commit = "^3.1.1"
+pytest = "*"
+blx = "*"
+pre-commit = "*"
 
 [build-system]
 requires = ["poetry-core"]

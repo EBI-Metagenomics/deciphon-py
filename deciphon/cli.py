@@ -27,6 +27,8 @@ app = Typer(
 )
 
 O_PROGRESS = Option(True, "--progress/--no-progress", help="Display progress bar.")
+O_HEURISTIC = Option(True, "--heuristic/--no-heuristic", help="Use heuristic.")
+O_NTHREADS = Option(1, "--nthreads", help="Number of threads.")
 
 
 @app.callback(invoke_without_command=True)
@@ -37,20 +39,26 @@ def cli(version: Optional[bool] = Option(None, "--version", is_eager=True)):
 
 
 @app.command()
-def press(hmm: Path, progress: bool = O_PROGRESS):
+def press(hmm: Path, codon_table: int, progress: bool = O_PROGRESS):
     """
     Press HMM file.
     """
     with service_exit():
         hmmfile = HMMFile(path=hmm)
-        with Press(hmmfile) as press:
+        with Press(hmmfile, codon_table=codon_table) as press:
             for x in track(press, "Pressing", disable=not progress):
                 x.press()
             hmmer_press(hmmfile.path)
 
 
 @app.command()
-def scan(hmm: Path, seq: Path, snap: Optional[Path] = None):
+def scan(
+    hmm: Path,
+    seq: Path,
+    snap: Optional[Path] = None,
+    heuristic: bool = O_HEURISTIC,
+    nthreads: int = O_NTHREADS,
+):
     """
     Scan nucleotide sequences.
     """
@@ -66,7 +74,8 @@ def scan(hmm: Path, seq: Path, snap: Optional[Path] = None):
             with H3Daemon(hmmfile) as daemon:
                 scan = Scan(hmmfile, seqfile, snapfile)
                 scan.port = daemon.port
-                scan.heuristic = True
+                scan.heuristic = heuristic
+                scan.nthreads = nthreads
                 with scan:
                     scan.run()
 
