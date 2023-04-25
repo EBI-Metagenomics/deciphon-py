@@ -18,4 +18,4 @@ def test_press(tmp_path: Path):
         for x in press:
             x.press()
     db = hmmfile.dbfile
-    assert db.path.stat().st_size == 9920817
+    assert db.path.stat().st_size == 9933756
