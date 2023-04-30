@@ -18,8 +18,7 @@ class H3Daemon:
 
     def __enter__(self):
         sched = self._sched_ctx.__enter__()
-        sched.is_ready(wait=True)
-        self._port = sched.master.get_port()
+        self._port = sched.get_cport()
         return self
 
     def __exit__(self, *_):
