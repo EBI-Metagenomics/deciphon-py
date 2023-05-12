@@ -28,6 +28,7 @@ app = Typer(
 
 O_PROGRESS = Option(True, "--progress/--no-progress", help="Display progress bar.")
 O_HEURISTIC = Option(True, "--heuristic/--no-heuristic", help="Use heuristic.")
+O_LRT_THRESHOLD = Option(2.0, "--lrt-threshold", help="LRT threshold.")
 O_NTHREADS = Option(1, "--nthreads", help="Number of threads.")
 
 
@@ -57,6 +58,7 @@ def scan(
     seq: Path,
     snap: Optional[Path] = None,
     heuristic: bool = O_HEURISTIC,
+    lrt_threshold: float = O_LRT_THRESHOLD,
     nthreads: int = O_NTHREADS,
 ):
     """
@@ -75,6 +77,7 @@ def scan(
                 scan = Scan(hmmfile, seqfile, snapfile)
                 scan.port = daemon.port
                 scan.heuristic = heuristic
+                scan.lrt_threshold = lrt_threshold
                 scan.nthreads = nthreads
                 with scan:
                     scan.run()

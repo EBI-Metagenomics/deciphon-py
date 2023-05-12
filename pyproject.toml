@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "deciphon"
-version = "0.8.0"
+version = "0.8.1"
 description = "Individually annotate long, error-prone nucleotide sequences into proteins"
 authors = ["Danilo Horta <danilo.horta@pm.me>"]
 license = "MIT"
@@ -12,7 +12,7 @@ cffi = "*"
 deciphon-core = "*"
 fasta-reader = "*"
 gmqtt = "*"
-h3daemon = "*"
+h3daemon = ">=0.13.3"
 hmmer = "*"
 ijson = "*"
 pydantic = "*"
